@@ -15,13 +15,16 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+    - name: lowercase repo name
+      run: |
+        echo "REPOSITORY_NAME=$(echo "${{ github.repository }}" | awk '{print tolower($0)}')" >> $GITHUB_ENV
     - name: Prepare
       id: prep
       run: |
-        GHCR_IMAGE="ghcr.io/${{ github.repository }}";
+        GHCR_IMAGE="ghcr.io/${{ env.REPOSITORY_NAME }}";
         TAGSZ="${GHCR_IMAGE}:beta,${GHCR_IMAGE}:beta-${{ github.sha }}";
         BUILD_DATEZ="$(date +'%Y-%m-%dT%TZ%z' -u)";
-        PROJECT_NAMEZ=`echo "${{ github.repository }}" | awk '{split($0,a,"/"); print a[2]}'`;
+        PROJECT_NAMEZ=`echo "${{ env.REPOSITORY_NAME }}" | awk '{split($0,a,"/"); print a[2]}'`;
         echo BUILD_TAGS=${TAGSZ} >> $GITHUB_ENV;
         echo BUILD_DATE=${BUILD_DATEZ} >> $GITHUB_ENV;
         echo PROJECT_NAME=${PROJECT_NAMEZ} >> $GITHUB_ENV;
