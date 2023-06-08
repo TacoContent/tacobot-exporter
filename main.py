@@ -65,6 +65,13 @@ class TacoBotMetrics:
             "username",
         ]
 
+        live_labels = [
+            "guild_id",
+            "user_id",
+            "username",
+            # "platform",
+        ]
+
         # merge labels and config labels
         # labels = labels + [x['name'] for x in self.config.labels]
 
@@ -277,6 +284,24 @@ class TacoBotMetrics:
             documentation="The number of top gifters",
             labelnames=user_labels)
 
+        self.top_reactors = Gauge(
+            namespace=self.namespace,
+            name=f"reactors",
+            documentation="The number of top reactors",
+            labelnames=user_labels)
+
+        self.top_tacos = Gauge(
+            namespace=self.namespace,
+            name=f"top_tacos",
+            documentation="The number of top tacos",
+            labelnames=user_labels)
+
+        self.top_live_activity = Gauge(
+            namespace=self.namespace,
+            name=f"live_activity",
+            documentation="The number of top live activity",
+            labelnames=live_labels)
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -452,13 +477,13 @@ class TacoBotMetrics:
             self.known_users.labels(**user_labels).set(user_count)
 
             # loop top messages and add to histogram
-            q_top_messages = self.db.get_user_messages_tracked(guild_id=guild_id)
+            q_top_messages = self.db.get_user_messages_tracked(guild_id=guild_id, limit=50)
             for u in q_top_messages:
                 user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": u["user"][0]['username'] }
                 self.top_messages.labels(**user_labels).set(u["count"])
 
 
-            q_top_gifters = self.db.get_top_taco_gifters(guild_id=guild_id)
+            q_top_gifters = self.db.get_top_taco_gifters(guild_id=guild_id, limit=50)
             # print(q_top_gifters)
             for u in q_top_gifters:
                 user = {
@@ -470,6 +495,46 @@ class TacoBotMetrics:
 
                 user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
                 self.top_gifters.labels(**user_labels).set(u["count"])
+
+            q_top_reactors = self.db.get_top_taco_reactors(guild_id=guild_id, limit=50)
+            # print(q_top_reactors)
+            for u in q_top_reactors:
+                user = {
+                    "user_id": u["_id"],
+                    "username": u["_id"]
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
+                self.top_reactors.labels(**user_labels).set(u["count"])
+
+            q_top_tacos = self.db.get_top_taco_receivers(guild_id=guild_id, limit=50)
+            # print(q_top_tacos)
+            for u in q_top_tacos:
+                user = {
+                    "user_id": u["_id"],
+                    "username": u["_id"]
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
+                self.top_tacos.labels(**user_labels).set(u["count"])
+
+            q_top_live = self.db.get_live_activity(guild_id=guild_id, limit=50)
+            print(q_top_live)
+            for u in q_top_live:
+                user = {
+                    "user_id": u["_id"],
+                    "username": u["_id"]
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
+                self.top_live_activity.labels(**user_labels).set(u["count"])
+
 
             # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())
             # self.not_valid_before.labels(**labels).set(issued_date.timestamp())

@@ -557,6 +557,14 @@ class MongoDatabase:
                     }
                 },
                 {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": { "user.bot": { "$ne": True } }
+                },
+                {
                     "$sort": { "count": -1 }
                 },
                 {
@@ -604,6 +612,147 @@ class MongoDatabase:
                         "foreignField": "user_id",
                         "as": "user"
                     }
+                },
+                {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": { "user.bot": { "$ne": True } }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+                {
+                    "$limit": limit
+                }
+            ]))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_top_taco_reactors(self, guild_id: int, limit: int = 10):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.tacos_reactions.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id",
+                        "count": { "$sum": 1 }
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user"
+                    }
+                },
+                {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": { "user.bot": { "$ne": True } }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+                {
+                    "$limit": limit
+                }
+            ]))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_top_taco_receivers(self, guild_id: int, limit: int = 10):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.tacos.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id",
+                        "count": { "$sum": "$count"}
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user"
+                    }
+                },
+                {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": { "user.bot": { "$ne": True } }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+                {
+                    "$limit": limit
+                }
+            ]))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_live_activity(self, guild_id: int, limit: int = 10):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.live_activity.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id), "status": "ONLINE" },
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id" ,
+                        "count": { "$sum": 1 },
+                        #"platform": { "$firstN": { "n": 2, "input": "$platform" } },
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user",
+                    }
+                },
+                {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": { "user.bot": { "$ne": True } }
                 },
                 {
                     "$sort": { "count": -1 }
