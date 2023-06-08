@@ -58,6 +58,13 @@ class TacoBotMetrics:
         labels = [
             "guild_id",
         ]
+
+        user_labels = [
+            "guild_id",
+            "user_id",
+            "username",
+        ]
+
         # merge labels and config labels
         # labels = labels + [x['name'] for x in self.config.labels]
 
@@ -246,17 +253,29 @@ class TacoBotMetrics:
             documentation="The number of first messages today",
             labelnames=labels)
 
-        self.sum_messages_tracked = Gauge(
-            namespace=self.namespace,
-            name=f"messages_tracked",
-            documentation="The number of messages tracked",
-            labelnames=labels)
+        # self.sum_messages_tracked = Gauge(
+        #     namespace=self.namespace,
+        #     name=f"messages_tracked",
+        #     documentation="The number of messages tracked",
+        #     labelnames=labels)
 
         self.known_users = Gauge(
             namespace=self.namespace,
             name=f"known_users",
             documentation="The number of known users",
             labelnames=["guild_id", "type"])
+
+        self.top_messages = Gauge(
+            namespace=self.namespace,
+            name=f"messages",
+            documentation="The number of top messages",
+            labelnames=user_labels)
+
+        self.top_gifters = Gauge(
+            namespace=self.namespace,
+            name=f"gifters",
+            documentation="The number of top gifters",
+            labelnames=user_labels)
 
         self.build_info = Gauge(
             namespace=self.namespace,
@@ -300,98 +319,99 @@ class TacoBotMetrics:
             }
 
 
+            guage_values = self.db.get_exporter_sum_data(guild_id=guild_id)
+            print(guage_values)
+            # q_all_tacos = self.db.get_sum_all_tacos(guild_id=guild_id)
+            # all_tacos = q_all_tacos[0]["total"] or 0
+            self.sum_tacos.labels(**labels).set(guage_values['all_tacos'])
 
-            q_all_tacos = self.db.get_sum_all_tacos(guild_id=guild_id)
-            all_tacos = q_all_tacos[0]["total"] or 0
-            self.sum_tacos.labels(**labels).set(all_tacos)
+            # q_all_taco_gifts = self.db.get_sum_all_gift_tacos(guild_id=guild_id)
+            # all_taco_gifts = q_all_taco_gifts[0]["total"] or 0
+            self.sum_taco_gifts.labels(**labels).set(guage_values['all_gift_tacos'])
 
-            q_all_taco_gifts = self.db.get_sum_all_gift_tacos(guild_id=guild_id)
-            all_taco_gifts = q_all_taco_gifts[0]["total"] or 0
-            self.sum_taco_gifts.labels(**labels).set(all_taco_gifts)
+            # q_all_taco_reactions = self.db.get_sum_all_taco_reactions(guild_id=guild_id)
+            # all_taco_reactions = q_all_taco_reactions or 0
+            self.sum_taco_reactions.labels(**labels).set(guage_values['all_reaction_tacos'])
 
-            q_all_taco_reactions = self.db.get_sum_all_taco_reactions(guild_id=guild_id)
-            all_taco_reactions = q_all_taco_reactions or 0
-            self.sum_taco_reactions.labels(**labels).set(all_taco_reactions)
+            # q_live_now = self.db.get_live_now_count(guild_id=guild_id)
+            # live_now = q_live_now or 0
+            self.sum_live_now.labels(**labels).set(guage_values['live_now'])
 
-            q_live_now = self.db.get_live_now_count(guild_id=guild_id)
-            live_now = q_live_now or 0
-            self.sum_live_now.labels(**labels).set(live_now)
+            # q_twitch_channels = self.db.get_twitch_channel_bot_count(guild_id=guild_id)
+            # twitch_channels = q_twitch_channels or 0
+            self.sum_twitch_channels.labels(**labels).set(guage_values['twitch_channels'])
 
-            q_twitch_channels = self.db.get_twitch_channel_bot_count(guild_id=guild_id)
-            twitch_channels = q_twitch_channels or 0
-            self.sum_twitch_channels.labels(**labels).set(twitch_channels)
+            # q_twitch_tacos = self.db.get_sum_all_twitch_tacos(guild_id=guild_id)
+            # twitch_tacos = q_twitch_tacos[0]["total"] or 0
+            self.sum_twitch_tacos.labels(**labels).set(guage_values['all_twitch_tacos'])
 
-            q_twitch_tacos = self.db.get_sum_all_twitch_tacos(guild_id=guild_id)
-            twitch_tacos = q_twitch_tacos[0]["total"] or 0
-            self.sum_twitch_tacos.labels(**labels).set(twitch_tacos)
+            # q_twitch_linked_accounts = self.db.get_twitch_linked_accounts_count()
+            # twitch_linked_accounts = q_twitch_linked_accounts or 0
+            self.sum_twitch_linked_accounts.set(guage_values['twitch_linked_accounts'])
 
-            q_twitch_linked_accounts = self.db.get_twitch_linked_accounts_count()
-            twitch_linked_accounts = q_twitch_linked_accounts or 0
-            self.sum_twitch_linked_accounts.set(twitch_linked_accounts)
+            # q_tqotd_questions = self.db.get_tqotd_questions_count(guild_id=guild_id)
+            # tqotd_questions = q_tqotd_questions or 0
+            self.sum_tqotd_questions.labels(**labels).set(guage_values['tqotd'])
 
-            q_tqotd_questions = self.db.get_tqotd_questions_count(guild_id=guild_id)
-            tqotd_questions = q_tqotd_questions or 0
-            self.sum_tqotd_questions.labels(**labels).set(tqotd_questions)
+            # q_tqotd_answers = self.db.get_tqotd_answers_count(guild_id=guild_id)
+            # tqotd_answers = q_tqotd_answers[0]["total"] or 0
+            self.sum_tqotd_answers.labels(**labels).set(guage_values['tqotd_answers'])
 
-            q_tqotd_answers = self.db.get_tqotd_answers_count(guild_id=guild_id)
-            tqotd_answers = q_tqotd_answers[0]["total"] or 0
-            self.sum_tqotd_answers.labels(**labels).set(tqotd_answers)
+            # q_invited_users = self.db.get_invited_users_count(guild_id=guild_id)
+            # invited_users = q_invited_users[0]['total'] or 0
+            self.sum_invited_users.labels(**labels).set(guage_values['invited_users'])
 
-            q_invited_users = self.db.get_invited_users_count(guild_id=guild_id)
-            invited_users = q_invited_users[0]['total'] or 0
-            self.sum_invited_users.labels(**labels).set(invited_users)
+            # q_live_twitch = self.db.get_sum_live_twitch(guild_id=guild_id)
+            # live_twitch = q_live_twitch or 0
+            self.sum_live_twitch.labels(**labels).set(guage_values['live_twitch'])
 
-            q_live_twitch = self.db.get_sum_live_twitch(guild_id=guild_id)
-            live_twitch = q_live_twitch or 0
-            self.sum_live_twitch.labels(**labels).set(live_twitch)
+            # q_live_youtube = self.db.get_sum_live_youtube(guild_id=guild_id)
+            # live_youtube = q_live_youtube or 0
+            self.sum_live_youtube.labels(**labels).set(guage_values['live_youtube'])
 
-            q_live_youtube = self.db.get_sum_live_youtube(guild_id=guild_id)
-            live_youtube = q_live_youtube or 0
-            self.sum_live_youtube.labels(**labels).set(live_youtube)
+            # q_wdyctw_questions = self.db.get_wdyctw_questions_count(guild_id=guild_id)
+            # wdyctw_questions = q_wdyctw_questions or 0
+            self.sum_wdyctw.labels(**labels).set(guage_values['wdyctw'])
 
-            q_wdyctw_questions = self.db.get_wdyctw_questions_count(guild_id=guild_id)
-            wdyctw_questions = q_wdyctw_questions or 0
-            self.sum_wdyctw.labels(**labels).set(wdyctw_questions)
+            # q_wdyctw_answers = self.db.get_wdyctw_answers_count(guild_id=guild_id)
+            # wdyctw_answers = q_wdyctw_answers[0]["total"] or 0
+            self.sum_wdyctw_answers.labels(**labels).set(guage_values['wdyctw_answers'])
 
-            q_wdyctw_answers = self.db.get_wdyctw_answers_count(guild_id=guild_id)
-            wdyctw_answers = q_wdyctw_answers[0]["total"] or 0
-            self.sum_wdyctw_answers.labels(**labels).set(wdyctw_answers)
+            # q_techthurs_questions = self.db.get_techthurs_questions_count(guild_id=guild_id)
+            # techthurs_questions = q_techthurs_questions or 0
+            self.sum_techthurs.labels(**labels).set(guage_values['techthurs'])
 
-            q_techthurs_questions = self.db.get_techthurs_questions_count(guild_id=guild_id)
-            techthurs_questions = q_techthurs_questions or 0
-            self.sum_techthurs.labels(**labels).set(techthurs_questions)
+            # q_techthurs_answers = self.db.get_techthurs_answers_count(guild_id=guild_id)
+            # techthurs_answers = q_techthurs_answers[0]["total"] or 0
+            self.sum_techthurs_answers.labels(**labels).set(guage_values['techthurs_answers'])
 
-            q_techthurs_answers = self.db.get_techthurs_answers_count(guild_id=guild_id)
-            techthurs_answers = q_techthurs_answers[0]["total"] or 0
-            self.sum_techthurs_answers.labels(**labels).set(techthurs_answers)
+            # q_mentalmondays_questions = self.db.get_mentalmondays_questions_count(guild_id=guild_id)
+            # mentalmondays_questions = q_mentalmondays_questions or 0
+            self.sum_techthurs.labels(**labels).set(guage_values['mentalmondays'])
 
-            q_mentalmondays_questions = self.db.get_mentalmondays_questions_count(guild_id=guild_id)
-            mentalmondays_questions = q_mentalmondays_questions or 0
-            self.sum_techthurs.labels(**labels).set(mentalmondays_questions)
+            # q_mentalmondays_answers = self.db.get_mentalmondays_answers_count(guild_id=guild_id)
+            # mentalmondays_answers = q_mentalmondays_answers[0]["total"] or 0
+            self.sum_mentalmondays_answers.labels(**labels).set(guage_values['mentalmondays_answers'])
 
-            q_mentalmondays_answers = self.db.get_mentalmondays_answers_count(guild_id=guild_id)
-            mentalmondays_answers = q_mentalmondays_answers[0]["total"] or 0
-            self.sum_mentalmondays_answers.labels(**labels).set(mentalmondays_answers)
+            # q_tacotuesday = self.db.get_tacotuesday_questions_count(guild_id=guild_id)
+            # tacotuesday_questions = q_tacotuesday or 0
+            self.sum_tacotuesday.labels(**labels).set(guage_values['tacotuesday'])
 
-            q_tacotuesday = self.db.get_tacotuesday_questions_count(guild_id=guild_id)
-            tacotuesday_questions = q_tacotuesday or 0
-            self.sum_tacotuesday.labels(**labels).set(tacotuesday_questions)
+            # q_tacotuesday_answers = self.db.get_tacotuesday_answers_count(guild_id=guild_id)
+            # tacotuesday_answers = q_tacotuesday_answers[0]["total"] or 0
+            self.sum_tacotuesday_answers.labels(**labels).set(guage_values['tacotuesday_answers'])
 
-            q_tacotuesday_answers = self.db.get_tacotuesday_answers_count(guild_id=guild_id)
-            tacotuesday_answers = q_tacotuesday_answers[0]["total"] or 0
-            self.sum_tacotuesday_answers.labels(**labels).set(tacotuesday_answers)
+            # q_game_keys_available = self.db.get_game_keys_available_count()
+            # game_keys_available = q_game_keys_available or 0
+            self.sum_game_keys_available.set(guage_values['game_keys_available'])
 
-            q_game_keys_available = self.db.get_game_keys_available_count()
-            game_keys_available = q_game_keys_available or 0
-            self.sum_game_keys_available.set(game_keys_available)
+            # q_game_keys_claimed = self.db.get_game_keys_redeemed_count()
+            # game_keys_claimed = q_game_keys_claimed or 0
+            self.sum_game_keys_claimed.set(guage_values['game_keys_redeemed'])
 
-            q_game_keys_claimed = self.db.get_game_keys_redeemed_count()
-            game_keys_claimed = q_game_keys_claimed or 0
-            self.sum_game_keys_claimed.set(game_keys_claimed)
-
-            q_minecraft_whitelisted = self.db.get_minecraft_whitelisted_count()
-            minecraft_whitelisted = q_minecraft_whitelisted or 0
-            self.sum_minecraft_whitelist.set(minecraft_whitelisted)
+            # q_minecraft_whitelisted = self.db.get_minecraft_whitelisted_count()
+            # minecraft_whitelisted = q_minecraft_whitelisted or 0
+            self.sum_minecraft_whitelist.set(guage_values['minecraft_whitelisted'])
 
             q_logs = self.db.get_logs_count(guild_id=guild_id, level="WARNING")
             logs = q_logs or 0
@@ -401,21 +421,21 @@ class TacoBotMetrics:
             logs = q_logs or 0
             self.sum_logs.labels(**error_log_labels).set(logs)
 
-            q_team_requests = self.db.get_team_requests_count(guild_id=guild_id)
-            team_requests = q_team_requests or 0
-            self.sum_stream_team_requests.labels(**labels).set(team_requests)
+            # q_team_requests = self.db.get_team_requests_count(guild_id=guild_id)
+            # team_requests = q_team_requests or 0
+            self.sum_stream_team_requests.labels(**labels).set(guage_values['stream_team_requests'])
 
-            q_birthdays = self.db.get_birthdays_count(guild_id=guild_id)
-            birthdays = q_birthdays or 0
-            self.sum_birthdays.labels(**labels).set(birthdays)
+            # q_birthdays = self.db.get_birthdays_count(guild_id=guild_id)
+            # birthdays = q_birthdays or 0
+            self.sum_birthdays.labels(**labels).set(guage_values['birthdays'])
 
-            q_first_messages = self.db.get_first_messages_today_count(guild_id=guild_id)
-            first_messages = q_first_messages or 0
-            self.sum_first_messages.labels(**labels).set(first_messages)
+            # q_first_messages = self.db.get_first_messages_today_count(guild_id=guild_id)
+            # first_messages = q_first_messages or 0
+            self.sum_first_messages.labels(**labels).set(guage_values['first_messages_today'])
 
-            q_messages_tracked = self.db.get_messages_tracked_count(guild_id=guild_id)
-            messages_tracked = q_messages_tracked or 0
-            self.sum_messages_tracked.labels(**labels).set(messages_tracked)
+            # q_messages_tracked = self.db.get_messages_tracked_count(guild_id=guild_id)
+            # messages_tracked = q_messages_tracked or 0
+            # self.sum_messages_tracked.labels(**labels).set(messages_tracked)
 
             q_known_users = self.db.get_known_users(guild_id=guild_id)
             bot_labels = { "guild_id": guild_id, "type": "bot"}
@@ -431,6 +451,25 @@ class TacoBotMetrics:
             user_count = len(q_known_users) - system_count - bot_count
             self.known_users.labels(**user_labels).set(user_count)
 
+            # loop top messages and add to histogram
+            q_top_messages = self.db.get_user_messages_tracked(guild_id=guild_id)
+            for u in q_top_messages:
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": u["user"][0]['username'] }
+                self.top_messages.labels(**user_labels).set(u["count"])
+
+
+            q_top_gifters = self.db.get_top_taco_gifters(guild_id=guild_id)
+            # print(q_top_gifters)
+            for u in q_top_gifters:
+                user = {
+                    "user_id": u["_id"],
+                    "username": u["_id"]
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
+                self.top_gifters.labels(**user_labels).set(u["count"])
 
             # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())
             # self.not_valid_before.labels(**labels).set(issued_date.timestamp())

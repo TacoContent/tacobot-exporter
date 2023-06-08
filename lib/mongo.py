@@ -31,6 +31,71 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
 
+# single query to get sums of values for exporter
+    def get_exporter_sum_data(self, guild_id: int):
+        try:
+            all_taco_sum = self.get_sum_all_tacos(guild_id)
+            all_gift_taco_sum = self.get_sum_all_gift_tacos(guild_id)
+            all_reaction_taco_sum = self.get_sum_all_taco_reactions(guild_id)
+            all_twitch_taco_sum = self.get_sum_all_twitch_tacos(guild_id)
+            live_now_sum = self.get_live_now_count(guild_id)
+            twitch_channel_bot = self.get_twitch_channel_bot_count(guild_id)
+            twitch_linked_accounts = self.get_twitch_linked_accounts_count()
+            tqotd = self.get_tqotd_questions_count(guild_id)
+            tqotd_answers = self.get_tqotd_answers_count(guild_id)
+            invited_users = self.get_invited_users_count(guild_id)
+            live_twitch = self.get_sum_live_twitch(guild_id)
+            live_youtube = self.get_sum_live_youtube(guild_id)
+            wdyctw = self.get_wdyctw_questions_count(guild_id)
+            wdyctw_answers = self.get_wdyctw_answers_count(guild_id)
+            techthurs = self.get_techthurs_questions_count(guild_id)
+            techthurs_answers = self.get_techthurs_answers_count(guild_id)
+            mentalmondays = self.get_mentalmondays_questions_count(guild_id)
+            mentalmondays_answers = self.get_mentalmondays_answers_count(guild_id)
+            tacotuesday = self.get_tacotuesday_questions_count(guild_id)
+            tacotuesday_answers = self.get_tacotuesday_answers_count(guild_id)
+            game_keys_available = self.get_game_keys_available_count()
+            game_keys_redeemed = self.get_game_keys_redeemed_count()
+            minecraft_whitelisted = self.get_minecraft_whitelisted_count()
+            team_requests = self.get_team_requests_count(guild_id)
+            birthdays = self.get_birthdays_count(guild_id)
+            first_messages_today = self.get_first_messages_today_count(guild_id)
+
+            return {
+                "all_tacos": all_taco_sum[0]['total'],
+                "all_gift_tacos": all_gift_taco_sum[0]['total'],
+                "all_reaction_tacos": all_reaction_taco_sum,
+                "all_twitch_tacos": all_twitch_taco_sum[0]['total'],
+                "live_now": live_now_sum,
+                "twitch_channels": twitch_channel_bot,
+                "twitch_linked_accounts": twitch_linked_accounts,
+                "tqotd": tqotd,
+                "tqotd_answers": tqotd_answers[0]['total'],
+                "invited_users": invited_users[0]['total'],
+                "live_twitch": live_twitch,
+                "live_youtube": live_youtube,
+                "wdyctw": wdyctw,
+                "wdyctw_answers": wdyctw_answers[0]['total'],
+                "techthurs": techthurs,
+                "techthurs_answers": techthurs_answers[0]['total'],
+                "mentalmondays": mentalmondays,
+                "mentalmondays_answers": mentalmondays_answers[0]['total'],
+                "tacotuesday": tacotuesday,
+                "tacotuesday_answers": tacotuesday_answers[0]['total'],
+                "game_keys_available": game_keys_available,
+                "game_keys_redeemed": game_keys_redeemed,
+                "minecraft_whitelisted": minecraft_whitelisted,
+                "stream_team_requests": team_requests,
+                "birthdays": birthdays,
+                "first_messages_today": first_messages_today,
+            }
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
     def get_sum_all_tacos(self, guild_id: int):
         try:
             if self.connection is None:
@@ -394,7 +459,7 @@ class MongoDatabase:
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.minecraft_users.count({ "whitelisted": { "$eq": True }})
+            return self.connection.minecraft_users.count({ "whitelist": { "$eq": True }})
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -433,7 +498,7 @@ class MongoDatabase:
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.birthdays.count({ "guild_id": int(guild_id) })
+            return self.connection.birthdays.count({ "guild_id": str(guild_id) })
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -465,11 +530,88 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    def get_user_messages_tracked(self, guild_id: int, limit: int = 10):
+        try:
+            if self.connection is None:
+                self.open()
+            # get the top limit messages from users.
+            # join the users collection to get the username
+            # sort by count descending
+
+            return list(self.connection.messages.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id",
+                        "count": { "$sum": { "$size": "$messages" } }
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user"
+                    }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+                {
+                    "$limit": limit
+                }
+            ]))
+            # return list(self.connection.messages.find({ "guild_id": str(guild_id) }).sort("count", -1).limit(limit))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
     def get_known_users(self, guild_id: int):
         try:
             if self.connection is None:
                 self.open()
             return list(self.connection.users.find({ "guild_id": str(guild_id) }))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_top_taco_gifters(self, guild_id: int, limit: int = 10):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.taco_gifts.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id",
+                        "count": { "$sum": "$count"}
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user"
+                    }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+                {
+                    "$limit": limit
+                }
+            ]))
         except Exception as ex:
             print(ex)
             traceback.print_exc()
