@@ -4446,7 +4446,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "delta(tacobot_tqotd_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h])",
+          "expr": "round(delta(tacobot_tqotd_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h]))",
           "legendFormat": "TQOTD",
           "range": true,
           "refId": "A"
@@ -4457,7 +4457,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "delta(tacobot_mentalmondays_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h])",
+          "expr": "round(delta(tacobot_mentalmondays_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h]))",
           "hide": false,
           "legendFormat": "Mental Monday",
           "range": true,
@@ -4469,7 +4469,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "delta(tacobot_tacotuesday_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h])",
+          "expr": "round(delta(tacobot_tacotuesday_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h]))",
           "hide": false,
           "legendFormat": "Taco Tuesday",
           "range": true,
@@ -4481,7 +4481,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "delta(tacobot_wdyctw_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h])",
+          "expr": "round(delta(tacobot_wdyctw_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h]))",
           "hide": false,
           "legendFormat": "WDYCTW",
           "range": true,
@@ -4493,7 +4493,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "delta(tacobot_techthurs_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h])",
+          "expr": "round(delta(tacobot_techthurs_answers{instance=\"$collector\", guild_id=~\"$guild_id\"}[24h]))",
           "hide": false,
           "legendFormat": "Tech Thursday",
           "range": true,
@@ -4571,13 +4571,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tacobot",
   "uid": "GnSFRx0Vz",
-  "version": 37,
+  "version": 39,
   "weekStart": ""
 }
