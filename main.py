@@ -418,7 +418,7 @@ class TacoBotMetrics:
 
             # q_mentalmondays_questions = self.db.get_mentalmondays_questions_count(guild_id=guild_id)
             # mentalmondays_questions = q_mentalmondays_questions or 0
-            self.sum_techthurs.labels(**labels).set(guage_values['mentalmondays'])
+            self.sum_mentalmondays.labels(**labels).set(guage_values['mentalmondays'])
 
             # q_mentalmondays_answers = self.db.get_mentalmondays_answers_count(guild_id=guild_id)
             # mentalmondays_answers = q_mentalmondays_answers[0]["total"] or 0
