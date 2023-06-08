@@ -308,6 +308,19 @@ class TacoBotMetrics:
             documentation="The number of suggestions",
             labelnames=["guild_id", "status"])
 
+        self.user_join_leave = Gauge(
+            namespace=self.namespace,
+            name=f"user_join_leave",
+            documentation="The number of users that have joined or left",
+            labelnames=["guild_id", "action"])
+
+        self.food_posts = Gauge(
+            namespace=self.namespace,
+            name=f"food_posts",
+            documentation="The number of food posts",
+            labelnames=user_labels)
+
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -352,121 +365,37 @@ class TacoBotMetrics:
 
             guage_values = self.db.get_exporter_sum_data(guild_id=guild_id)
 
-            # q_all_tacos = self.db.get_sum_all_tacos(guild_id=guild_id)
-            # all_tacos = q_all_tacos[0]["total"] or 0
             self.sum_tacos.labels(**labels).set(guage_values['all_tacos'])
-
-            # q_all_taco_gifts = self.db.get_sum_all_gift_tacos(guild_id=guild_id)
-            # all_taco_gifts = q_all_taco_gifts[0]["total"] or 0
             self.sum_taco_gifts.labels(**labels).set(guage_values['all_gift_tacos'])
-
-            # q_all_taco_reactions = self.db.get_sum_all_taco_reactions(guild_id=guild_id)
-            # all_taco_reactions = q_all_taco_reactions or 0
             self.sum_taco_reactions.labels(**labels).set(guage_values['all_reaction_tacos'])
-
-            # q_live_now = self.db.get_live_now_count(guild_id=guild_id)
-            # live_now = q_live_now or 0
             self.sum_live_now.labels(**labels).set(guage_values['live_now'])
-
-            # q_twitch_channels = self.db.get_twitch_channel_bot_count(guild_id=guild_id)
-            # twitch_channels = q_twitch_channels or 0
             self.sum_twitch_channels.labels(**labels).set(guage_values['twitch_channels'])
-
-            # q_twitch_tacos = self.db.get_sum_all_twitch_tacos(guild_id=guild_id)
-            # twitch_tacos = q_twitch_tacos[0]["total"] or 0
             self.sum_twitch_tacos.labels(**labels).set(guage_values['all_twitch_tacos'])
-
-            # q_twitch_linked_accounts = self.db.get_twitch_linked_accounts_count()
-            # twitch_linked_accounts = q_twitch_linked_accounts or 0
             self.sum_twitch_linked_accounts.set(guage_values['twitch_linked_accounts'])
-
-            # q_tqotd_questions = self.db.get_tqotd_questions_count(guild_id=guild_id)
-            # tqotd_questions = q_tqotd_questions or 0
             self.sum_tqotd_questions.labels(**labels).set(guage_values['tqotd'])
-
-            # q_tqotd_answers = self.db.get_tqotd_answers_count(guild_id=guild_id)
-            # tqotd_answers = q_tqotd_answers[0]["total"] or 0
             self.sum_tqotd_answers.labels(**labels).set(guage_values['tqotd_answers'])
-
-            # q_invited_users = self.db.get_invited_users_count(guild_id=guild_id)
-            # invited_users = q_invited_users[0]['total'] or 0
             self.sum_invited_users.labels(**labels).set(guage_values['invited_users'])
-
-            # q_live_twitch = self.db.get_sum_live_twitch(guild_id=guild_id)
-            # live_twitch = q_live_twitch or 0
             self.sum_live_twitch.labels(**labels).set(guage_values['live_twitch'])
-
-            # q_live_youtube = self.db.get_sum_live_youtube(guild_id=guild_id)
-            # live_youtube = q_live_youtube or 0
             self.sum_live_youtube.labels(**labels).set(guage_values['live_youtube'])
-
-            # q_wdyctw_questions = self.db.get_wdyctw_questions_count(guild_id=guild_id)
-            # wdyctw_questions = q_wdyctw_questions or 0
             self.sum_wdyctw.labels(**labels).set(guage_values['wdyctw'])
-
-            # q_wdyctw_answers = self.db.get_wdyctw_answers_count(guild_id=guild_id)
-            # wdyctw_answers = q_wdyctw_answers[0]["total"] or 0
             self.sum_wdyctw_answers.labels(**labels).set(guage_values['wdyctw_answers'])
-
-            # q_techthurs_questions = self.db.get_techthurs_questions_count(guild_id=guild_id)
-            # techthurs_questions = q_techthurs_questions or 0
             self.sum_techthurs.labels(**labels).set(guage_values['techthurs'])
-
-            # q_techthurs_answers = self.db.get_techthurs_answers_count(guild_id=guild_id)
-            # techthurs_answers = q_techthurs_answers[0]["total"] or 0
             self.sum_techthurs_answers.labels(**labels).set(guage_values['techthurs_answers'])
-
-            # q_mentalmondays_questions = self.db.get_mentalmondays_questions_count(guild_id=guild_id)
-            # mentalmondays_questions = q_mentalmondays_questions or 0
             self.sum_mentalmondays.labels(**labels).set(guage_values['mentalmondays'])
-
-            # q_mentalmondays_answers = self.db.get_mentalmondays_answers_count(guild_id=guild_id)
-            # mentalmondays_answers = q_mentalmondays_answers[0]["total"] or 0
             self.sum_mentalmondays_answers.labels(**labels).set(guage_values['mentalmondays_answers'])
-
-            # q_tacotuesday = self.db.get_tacotuesday_questions_count(guild_id=guild_id)
-            # tacotuesday_questions = q_tacotuesday or 0
             self.sum_tacotuesday.labels(**labels).set(guage_values['tacotuesday'])
-
-            # q_tacotuesday_answers = self.db.get_tacotuesday_answers_count(guild_id=guild_id)
-            # tacotuesday_answers = q_tacotuesday_answers[0]["total"] or 0
             self.sum_tacotuesday_answers.labels(**labels).set(guage_values['tacotuesday_answers'])
-
-            # q_game_keys_available = self.db.get_game_keys_available_count()
-            # game_keys_available = q_game_keys_available or 0
             self.sum_game_keys_available.set(guage_values['game_keys_available'])
-
-            # q_game_keys_claimed = self.db.get_game_keys_redeemed_count()
-            # game_keys_claimed = q_game_keys_claimed or 0
             self.sum_game_keys_claimed.set(guage_values['game_keys_redeemed'])
-
-            # q_minecraft_whitelisted = self.db.get_minecraft_whitelisted_count()
-            # minecraft_whitelisted = q_minecraft_whitelisted or 0
             self.sum_minecraft_whitelist.set(guage_values['minecraft_whitelisted'])
-
-            q_logs = self.db.get_logs_count(guild_id=guild_id, level="WARNING")
-            logs = q_logs or 0
-            self.sum_logs.labels(**warn_log_labels).set(logs)
-
-            q_logs = self.db.get_logs_count(guild_id=guild_id, level="ERROR")
-            logs = q_logs or 0
-            self.sum_logs.labels(**error_log_labels).set(logs)
-
-            # q_team_requests = self.db.get_team_requests_count(guild_id=guild_id)
-            # team_requests = q_team_requests or 0
             self.sum_stream_team_requests.labels(**labels).set(guage_values['stream_team_requests'])
-
-            # q_birthdays = self.db.get_birthdays_count(guild_id=guild_id)
-            # birthdays = q_birthdays or 0
             self.sum_birthdays.labels(**labels).set(guage_values['birthdays'])
-
-            # q_first_messages = self.db.get_first_messages_today_count(guild_id=guild_id)
-            # first_messages = q_first_messages or 0
             self.sum_first_messages.labels(**labels).set(guage_values['first_messages_today'])
 
-            # q_messages_tracked = self.db.get_messages_tracked_count(guild_id=guild_id)
-            # messages_tracked = q_messages_tracked or 0
-            # self.sum_messages_tracked.labels(**labels).set(messages_tracked)
+            logs = self.db.get_logs(guild_id=guild_id)
+            for l in ["DEBUG", "INFO", "WARNING", "ERROR"]:
+                cnt = len([q for q in logs if q["action"] == l])
+                self.sum_logs.labels(**labels, level=l).set(cnt)
 
             q_known_users = self.db.get_known_users(guild_id=guild_id)
             bot_labels = { "guild_id": guild_id, "type": "bot"}
@@ -545,6 +474,24 @@ class TacoBotMetrics:
                 suggestion_labels = { "guild_id": guild_id, "status": state }
                 cnt = len([q for q in q_suggestions if q["state"] == state])
                 self.suggestions.labels(**suggestion_labels).set(cnt)
+
+            q_join_leave = self.db.get_user_join_leave(guild_id=guild_id)
+            for state in ["JOIN", "LEAVE"]:
+                join_leave_labels = { "guild_id": guild_id, "action": state }
+                cnt = len([q for q in q_join_leave if q["action"] == state])
+                self.user_join_leave.labels(**join_leave_labels).set(cnt)
+
+            q_food = self.db.get_food_posts_count(guild_id=guild_id)
+            for u in q_food:
+                user = {
+                    "user_id": u["_id"],
+                    "username": u["_id"]
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
+                self.top_live_activity.labels(**user_labels).set(u["count"])
 
 
             # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())

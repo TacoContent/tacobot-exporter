@@ -467,6 +467,21 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    def get_logs(self, guild_id: int, level: str = None):
+        try:
+            if self.connection is None:
+                self.open()
+            if level:
+                return self.connection.logs.find({ "guild_id": int(guild_id), "level": { "$eq": level } })
+            else:
+                return self.connection.logs.find({ "guild_id": int(guild_id) })
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
     def get_logs_count(self, guild_id: int, level: str = None):
         try:
             if self.connection is None:
@@ -784,3 +799,60 @@ class MongoDatabase:
         finally:
             if self.connection:
                 self.close()
+
+    def get_user_join_leave(self, guild_id: int):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.user_join_leave.find({ "guild_id": str(guild_id) }))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_food_posts_count(self, guild_id: int) -> list:
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.food_posts.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$user_id",
+                        "count": { "$sum": 1 }
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "_id",
+                        "foreignField": "user_id",
+                        "as": "user"
+                    }
+                },
+                {
+                    # remove items where the user is not found
+                    "$match": { "user": { "$ne": [] } }
+                },
+                # remove items where the user is a bot
+                {
+                    "$match": {
+                        "user.bot": { "$ne": True },
+                        "user.system": { "$ne": True }
+                    }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+            ]))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+            return []
