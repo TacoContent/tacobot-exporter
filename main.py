@@ -351,7 +351,7 @@ class TacoBotMetrics:
 
 
             guage_values = self.db.get_exporter_sum_data(guild_id=guild_id)
-            print(guage_values)
+
             # q_all_tacos = self.db.get_sum_all_tacos(guild_id=guild_id)
             # all_tacos = q_all_tacos[0]["total"] or 0
             self.sum_tacos.labels(**labels).set(guage_values['all_tacos'])
@@ -529,7 +529,6 @@ class TacoBotMetrics:
                 self.top_tacos.labels(**user_labels).set(u["count"])
 
             q_top_live = self.db.get_live_activity(guild_id=guild_id, limit=50)
-            print(q_top_live)
             for u in q_top_live:
                 user = {
                     "user_id": u["_id"],

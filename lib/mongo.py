@@ -510,7 +510,12 @@ class MongoDatabase:
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.first_message.count({ "guild_id": str(guild_id), "date": { "$gte": datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time()) } })
+            # get UTC time for midnight today
+            utc_today = datetime.datetime.combine(datetime.datetime.utcnow().today(), datetime.datetime.min.time())
+            # convert utc_today to unix timestamp
+            utc_today_ts = int((utc_today - datetime.datetime(1970, 1, 1)).total_seconds())
+
+            return self.connection.first_message.count({ "guild_id": str(guild_id), "timestamp": { "$gte": utc_today_ts } })
         except Exception as ex:
             print(ex)
             traceback.print_exc()
