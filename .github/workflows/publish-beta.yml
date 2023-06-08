@@ -1,4 +1,4 @@
-name: tacobot-exporter build release
+name: tacobot-exporter build beta
 on:
   push:
     branches:
