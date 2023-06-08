@@ -856,3 +856,32 @@ class MongoDatabase:
             if self.connection:
                 self.close()
             return []
+
+    def get_taco_logs_counts(self, guild_id: int) -> list:
+        try:
+            if self.connection is None:
+                self.open()
+
+            # get logs counts, aggragted by type.
+            return list(self.connection.tacos_log.aggregate([
+                {
+                    "$match": {"guild_id": str(guild_id)},
+                },
+                {
+                    "$group": {
+                        "_id": "$type",
+                        "count": { "$sum": "$count" }
+                    }
+                },
+                {
+                    "$sort": { "count": -1 }
+                },
+            ]))
+
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+            return []

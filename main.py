@@ -296,6 +296,12 @@ class TacoBotMetrics:
             documentation="The number of top tacos",
             labelnames=user_labels)
 
+        # self.taco_logs = Gauge(
+        #     namespace=self.namespace,
+        #     name=f"taco_logs",
+        #     documentation="The number of taco logs",
+        #     labelnames=["guild_id", "type"])
+
         self.top_live_activity = Gauge(
             namespace=self.namespace,
             name=f"live_activity",
@@ -493,6 +499,11 @@ class TacoBotMetrics:
                 user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
                 self.top_live_activity.labels(**user_labels).set(u["count"])
 
+            # q_taco_logs = self.db.get_taco_logs_counts(guild_id=guild_id)
+            # print(q_taco_logs)
+            # for t in q_taco_logs:
+            #     taco_labels = { "guild_id": guild_id, "type": "UNKNOWN" }
+            #     self.taco_logs.labels(**taco_labels).set(t["count"])
 
             # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())
             # self.not_valid_before.labels(**labels).set(issued_date.timestamp())
