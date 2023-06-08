@@ -767,3 +767,15 @@ class MongoDatabase:
         finally:
             if self.connection:
                 self.close()
+
+    def get_suggestions(self, guild_id: int):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.suggestions.find({ "guild_id": str(guild_id) }))
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()

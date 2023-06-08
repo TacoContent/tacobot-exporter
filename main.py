@@ -302,6 +302,12 @@ class TacoBotMetrics:
             documentation="The number of top live activity",
             labelnames=live_labels)
 
+        self.suggestions = Gauge(
+            namespace=self.namespace,
+            name=f"suggestions",
+            documentation="The number of suggestions",
+            labelnames=["guild_id", "status"])
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -534,6 +540,12 @@ class TacoBotMetrics:
 
                 user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
                 self.top_live_activity.labels(**user_labels).set(u["count"])
+
+            q_suggestions = self.db.get_suggestions(guild_id=guild_id)
+            for state in ["ACTIVE", "APPROVED", "REJECTED", "IMPLEMENTED", "CONSIDERED", "DELETED", "CLOSED"]:
+                suggestion_labels = { "guild_id": guild_id, "status": state }
+                cnt = len([q for q in q_suggestions if q["state"] == state])
+                self.suggestions.labels(**suggestion_labels).set(cnt)
 
 
             # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())
