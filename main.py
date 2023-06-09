@@ -326,6 +326,12 @@ class TacoBotMetrics:
             documentation="The number of food posts",
             labelnames=user_labels)
 
+        self.guilds = Gauge(
+            namespace=self.namespace,
+            name=f"guilds",
+            documentation="The number of guilds",
+            labelnames=["guild_id", "name"])
+
 
         self.build_info = Gauge(
             namespace=self.namespace,
@@ -500,6 +506,12 @@ class TacoBotMetrics:
             for t in q_taco_logs:
                 taco_labels = { "guild_id": guild_id, "type": t["_id"] or "UNKNOWN" }
                 self.taco_logs.labels(**taco_labels).set(t["count"])
+
+            q_guilds = self.db.get_guilds()
+            for g in q_guilds:
+                guild_labels = { "guild_id": g["_id"], "guild_name": g["name"] }
+                self.guilds.labels(**guild_labels).set(1)
+                
         except Exception as e:
             traceback.print_exc()
 

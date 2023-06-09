@@ -877,3 +877,15 @@ class MongoDatabase:
         finally:
             if self.connection:
                 self.close()
+
+    def get_guilds(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(self.connection.guilds.find())
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
