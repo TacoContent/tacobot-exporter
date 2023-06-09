@@ -509,9 +509,9 @@ class TacoBotMetrics:
 
             q_guilds = self.db.get_guilds()
             for g in q_guilds:
-                guild_labels = { "guild_id": g["_id"], "guild_name": g["name"] }
+                guild_labels = { "guild_id": g["guild_id"], "name": g["name"] }
                 self.guilds.labels(**guild_labels).set(1)
-                
+
         except Exception as e:
             traceback.print_exc()
 
