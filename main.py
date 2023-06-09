@@ -296,11 +296,11 @@ class TacoBotMetrics:
             documentation="The number of top tacos",
             labelnames=user_labels)
 
-        # self.taco_logs = Gauge(
-        #     namespace=self.namespace,
-        #     name=f"taco_logs",
-        #     documentation="The number of taco logs",
-        #     labelnames=["guild_id", "type"])
+        self.taco_logs = Gauge(
+            namespace=self.namespace,
+            name=f"taco_logs",
+            documentation="The number of taco logs",
+            labelnames=["guild_id", "type"])
 
         self.top_live_activity = Gauge(
             namespace=self.namespace,
@@ -425,7 +425,6 @@ class TacoBotMetrics:
 
 
             q_top_gifters = self.db.get_top_taco_gifters(guild_id=guild_id, limit=50)
-            # print(q_top_gifters)
             for u in q_top_gifters:
                 user = {
                     "user_id": u["_id"],
@@ -438,7 +437,6 @@ class TacoBotMetrics:
                 self.top_gifters.labels(**user_labels).set(u["count"])
 
             q_top_reactors = self.db.get_top_taco_reactors(guild_id=guild_id, limit=50)
-            # print(q_top_reactors)
             for u in q_top_reactors:
                 user = {
                     "user_id": u["_id"],
@@ -451,7 +449,6 @@ class TacoBotMetrics:
                 self.top_reactors.labels(**user_labels).set(u["count"])
 
             q_top_tacos = self.db.get_top_taco_receivers(guild_id=guild_id, limit=50)
-            # print(q_top_tacos)
             for u in q_top_tacos:
                 user = {
                     "user_id": u["_id"],
@@ -497,23 +494,14 @@ class TacoBotMetrics:
                     user = u["user"][0]
 
                 user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.top_live_activity.labels(**user_labels).set(u["count"])
+                self.food_posts.labels(**user_labels).set(u["count"])
 
-            # q_taco_logs = self.db.get_taco_logs_counts(guild_id=guild_id)
-            # print(q_taco_logs)
-            # for t in q_taco_logs:
-            #     taco_labels = { "guild_id": guild_id, "type": "UNKNOWN" }
-            #     self.taco_logs.labels(**taco_labels).set(t["count"])
-
-            # self.not_valid_after.labels(**labels).set(expiration_date.timestamp())
-            # self.not_valid_before.labels(**labels).set(issued_date.timestamp())
-            # self.expired.labels(**labels).set(int(expiration_date < datetime.datetime.now(pytz.UTC)))
-            # self.host_read_errors.labels(host=f"{host['name']}:{host['port']}").set(0)
+            q_taco_logs = self.db.get_taco_logs_counts(guild_id=guild_id)
+            for t in q_taco_logs:
+                taco_labels = { "guild_id": guild_id, "type": t["_id"] or "UNKNOWN" }
+                self.taco_logs.labels(**taco_labels).set(t["count"])
         except Exception as e:
             traceback.print_exc()
-            error_count += 1
-            # self.host_read_errors.labels(host=f"{host['name']}:{host['port']}").set(1)
-        # self.read_errors.set(error_count)
 
 
 def dict_get(dictionary, key, default_value=None):
