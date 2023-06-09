@@ -467,14 +467,11 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_logs(self, guild_id: int, level: str = None):
+    def get_logs(self, guild_id: int):
         try:
             if self.connection is None:
                 self.open()
-            if level:
-                return self.connection.logs.find({ "guild_id": int(guild_id), "level": { "$eq": level } })
-            else:
-                return self.connection.logs.find({ "guild_id": int(guild_id) })
+            return self.connection.logs.find({ "guild_id": str(guild_id) })
         except Exception as ex:
             print(ex)
             traceback.print_exc()
