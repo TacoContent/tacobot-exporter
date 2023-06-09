@@ -471,7 +471,7 @@ class MongoDatabase:
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.logs.find({ "guild_id": str(guild_id) }))
+            return list(self.connection.logs.find({ "guild_id": { "$in": [ str(guild_id), None ] } }))
         except Exception as ex:
             print(ex)
             traceback.print_exc()
