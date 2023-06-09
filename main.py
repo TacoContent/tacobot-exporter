@@ -399,8 +399,9 @@ class TacoBotMetrics:
             self.sum_first_messages.labels(**labels).set(guage_values['first_messages_today'])
 
             logs = self.db.get_logs(guild_id=guild_id)
+            print(logs)
             for l in ["DEBUG", "INFO", "WARNING", "ERROR"]:
-                cnt = len([q for q in logs if q["action"] == l])
+                cnt = len([q for q in logs if q["level"] == l])
                 self.sum_logs.labels(**labels, level=l).set(cnt)
 
             q_known_users = self.db.get_known_users(guild_id=guild_id)
