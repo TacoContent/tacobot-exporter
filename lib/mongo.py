@@ -31,64 +31,12 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
 
-# single query to get sums of values for exporter
-    def get_exporter_sum_data(self, guild_id: int):
+    def get_sum_all_tacos(self):
         try:
-            all_taco_sum = self.get_sum_all_tacos(guild_id)
-            all_gift_taco_sum = self.get_sum_all_gift_tacos(guild_id)
-            all_reaction_taco_sum = self.get_sum_all_taco_reactions(guild_id)
-            all_twitch_taco_sum = self.get_sum_all_twitch_tacos(guild_id)
-            live_now_sum = self.get_live_now_count(guild_id)
-            twitch_channel_bot = self.get_twitch_channel_bot_count(guild_id)
-            twitch_linked_accounts = self.get_twitch_linked_accounts_count()
-            tqotd = self.get_tqotd_questions_count(guild_id)
-            tqotd_answers = self.get_tqotd_answers_count(guild_id)
-            invited_users = self.get_invited_users_count(guild_id)
-            live_twitch = self.get_sum_live_twitch(guild_id)
-            live_youtube = self.get_sum_live_youtube(guild_id)
-            wdyctw = self.get_wdyctw_questions_count(guild_id)
-            wdyctw_answers = self.get_wdyctw_answers_count(guild_id)
-            techthurs = self.get_techthurs_questions_count(guild_id)
-            techthurs_answers = self.get_techthurs_answers_count(guild_id)
-            mentalmondays = self.get_mentalmondays_questions_count(guild_id)
-            mentalmondays_answers = self.get_mentalmondays_answers_count(guild_id)
-            tacotuesday = self.get_tacotuesday_questions_count(guild_id)
-            tacotuesday_answers = self.get_tacotuesday_answers_count(guild_id)
-            game_keys_available = self.get_game_keys_available_count()
-            game_keys_redeemed = self.get_game_keys_redeemed_count()
-            minecraft_whitelisted = self.get_minecraft_whitelisted_count()
-            team_requests = self.get_team_requests_count(guild_id)
-            birthdays = self.get_birthdays_count(guild_id)
-            first_messages_today = self.get_first_messages_today_count(guild_id)
+            if self.connection is None:
+                self.open()
+            return self.connection.tacos.aggregate([{"$group": {"_id": "$guild_id", "total": {"$sum": "$count"}}}])
 
-            return {
-                "all_tacos": all_taco_sum[0]['total'],
-                "all_gift_tacos": all_gift_taco_sum[0]['total'],
-                "all_reaction_tacos": all_reaction_taco_sum,
-                "all_twitch_tacos": all_twitch_taco_sum[0]['total'],
-                "live_now": live_now_sum,
-                "twitch_channels": twitch_channel_bot,
-                "twitch_linked_accounts": twitch_linked_accounts,
-                "tqotd": tqotd,
-                "tqotd_answers": tqotd_answers[0]['total'],
-                "invited_users": invited_users[0]['total'],
-                "live_twitch": live_twitch,
-                "live_youtube": live_youtube,
-                "wdyctw": wdyctw,
-                "wdyctw_answers": wdyctw_answers[0]['total'],
-                "techthurs": techthurs,
-                "techthurs_answers": techthurs_answers[0]['total'],
-                "mentalmondays": mentalmondays,
-                "mentalmondays_answers": mentalmondays_answers[0]['total'],
-                "tacotuesday": tacotuesday,
-                "tacotuesday_answers": tacotuesday_answers[0]['total'],
-                "game_keys_available": game_keys_available,
-                "game_keys_redeemed": game_keys_redeemed,
-                "minecraft_whitelisted": minecraft_whitelisted,
-                "stream_team_requests": team_requests,
-                "birthdays": birthdays,
-                "first_messages_today": first_messages_today,
-            }
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -96,14 +44,12 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_sum_all_tacos(self, guild_id: int):
+    def get_sum_all_gift_tacos(self):
         try:
             if self.connection is None:
                 self.open()
             return list(
-                self.connection.tacos.aggregate(
-                    [{"$match": {"guild_id": str(guild_id)}}, {"$group": {"_id": None, "total": {"$sum": "$count"}}}]
-                )
+                self.connection.taco_gifts.aggregate([{"$group": {"_id": "$guild_id", "total": {"$sum": "$count"}}}])
             )
         except Exception as ex:
             print(ex)
@@ -112,15 +58,11 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_sum_all_gift_tacos(self, guild_id: int):
+    def get_sum_all_taco_reactions(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(
-                self.connection.taco_gifts.aggregate(
-                    [{"$match": {"guild_id": str(guild_id)}}, {"$group": {"_id": None, "total": {"$sum": "$count"}}}]
-                )
-            )
+            return self.connection.tacos_reactions.aggregate([{"$group": {"_id": "$guild_id", "total": {"$sum": 1}}}])
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -128,31 +70,14 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_sum_all_taco_reactions(self, guild_id: int):
-        try:
-            if self.connection is None:
-                self.open()
-            return self.connection.tacos_reactions.count({"guild_id": str(guild_id)})
-        except Exception as ex:
-            print(ex)
-            traceback.print_exc()
-        finally:
-            if self.connection:
-                self.close()
-
-    def get_sum_all_twitch_tacos(self, guild_id: int):
+    def get_sum_all_twitch_tacos(self):
         try:
             if self.connection is None:
                 self.open()
             return list(
                 self.connection.twitch_tacos_gifts.aggregate(
                     [
-                        {
-                            "$match": {"guild_id": str(guild_id)},
-                        },
-                        {
-                            "$group": {"_id": None, "total": {"$sum": "$count"}}
-                        },
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": "$count"}}},
                     ]
                 )
             )
@@ -163,11 +88,11 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_live_now_count(self, guild_id: int):
+    def get_live_now_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.live_tracked.count({"guild_id": str(guild_id)})
+            return self.connection.live_tracked.aggregate([{"$group": {"_id": "$guild_id", "total": {"$sum": 1}}}])
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -175,11 +100,15 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_twitch_channel_bot_count(self, guild_id: int):
+    def get_twitch_channel_bot_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.twitch_channels.count({"guild_id": str(guild_id)})
+            return self.connection.twitch_channels.aggregate(
+                [
+                    {"$group": {"_id": "$guild_id", "total": {"$sum": 1}}},
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -199,75 +128,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_tqotd_questions_count(self, guild_id: int):
+    def get_tqotd_questions_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.tqotd.count({"guild_id": str(guild_id)})
-        except Exception as ex:
-            print(ex)
-            traceback.print_exc()
-        finally:
-            if self.connection:
-                self.close()
-
-    def get_tqotd_answers_count(self, guild_id: int):
-        try:
-            if self.connection is None:
-                self.open()
-            return list(self.connection.tqotd.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": "$answered"}}
-                    }
-                }
-            ]))
-        except Exception as ex:
-            print(ex)
-            traceback.print_exc()
-        finally:
-            if self.connection:
-                self.close()
-
-    def get_invited_users_count(self, guild_id: int):
-        try:
-            if self.connection is None:
-                self.open()
-            return list(self.connection.invite_codes.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": { "$ifNull": [ "$invites", []] } } }
-                    }
-                }
-            ]))
-        except Exception as ex:
-            print(ex)
-            traceback.print_exc()
-        finally:
-            if self.connection:
-                self.close()
-
-    def get_sum_live_twitch(self, guild_id: int):
-        try:
-            if self.connection is None:
-                self.open()
-            return self.connection.live_activity.count({
-                "$and": [
+            return self.connection.tqotd.aggregate(
+                [
                     {
-                        "status": { "$eq": "ONLINE"},
-                        "guild_id": str(guild_id)
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
                     },
-                    { "platform": "TWITCH" }
                 ]
-                })
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -275,19 +149,73 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_sum_live_youtube(self, guild_id: int):
+    def get_tqotd_answers_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.live_activity.count({
-                "$and": [
+            return list(
+                self.connection.tqotd.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": "$answered"}}}},
+                    ]
+                )
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_invited_users_count(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(
+                self.connection.invite_codes.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": {"$ifNull": ["$invites", []]}}}}},
+                    ]
+                )
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_sum_live_by_platform(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return self.connection.live_activity.aggregate(
+                [
+                    {"$match": {"status": {"$eq": "ONLINE"}}},
+                    {"$group": {"_id": {"platform": "$platform", "guild_id": "$guild_id"}, "total": {"$sum": 1}}},
+                ]
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_wdyctw_questions_count(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return self.connection.wdyctw.aggregate(
+                [
                     {
-                        "status": { "$eq": "ONLINE"},
-                        "guild_id": str(guild_id)
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
                     },
-                    { "platform": "YOUTUBE" }
                 ]
-                })
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -295,11 +223,17 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_wdyctw_questions_count(self, guild_id: int):
+    def get_wdyctw_answers_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.wdyctw.count({"guild_id": str(guild_id)})
+            return list(
+                self.connection.wdyctw.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": "$answered"}}}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -307,21 +241,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_wdyctw_answers_count(self, guild_id: int):
+    def get_techthurs_questions_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.wdyctw.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": "$answered"}}
-                    }
-                }
-            ]))
+            return self.connection.techthurs.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -329,11 +262,17 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_techthurs_questions_count(self, guild_id: int):
+    def get_techthurs_answers_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.techthurs.count({"guild_id": str(guild_id)})
+            return list(
+                self.connection.techthurs.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": "$answered"}}}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -341,21 +280,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_techthurs_answers_count(self, guild_id: int):
+    def get_mentalmondays_questions_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.techthurs.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": "$answered"}}
-                    }
-                }
-            ]))
+            return self.connection.mentalmondays.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -363,11 +301,17 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_mentalmondays_questions_count(self, guild_id: int):
+    def get_mentalmondays_answers_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.mentalmondays.count({"guild_id": str(guild_id)})
+            return list(
+                self.connection.mentalmondays.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": "$answered"}}}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -375,21 +319,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_mentalmondays_answers_count(self, guild_id: int):
+    def get_tacotuesday_questions_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.mentalmondays.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": "$answered"}}
-                    }
-                }
-            ]))
+            return self.connection.taco_tuesday.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -397,11 +340,17 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_tacotuesday_questions_count(self, guild_id: int):
+    def get_tacotuesday_answers_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.taco_tuesday.count({"guild_id": str(guild_id)})
+            return list(
+                self.connection.taco_tuesday.aggregate(
+                    [
+                        {"$group": {"_id": "$guild_id", "total": {"$sum": {"$size": "$answered"}}}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -409,33 +358,12 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_tacotuesday_answers_count(self, guild_id: int):
-        try:
-            if self.connection is None:
-                self.open()
-            return list(self.connection.taco_tuesday.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": None,
-                        "total": { "$sum": { "$size": "$answered"}}
-                    }
-                }
-            ]))
-        except Exception as ex:
-            print(ex)
-            traceback.print_exc()
-        finally:
-            if self.connection:
-                self.close()
-
+    # need to update data here to include guild_id
     def get_game_keys_available_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.game_keys.count({ "redeemed_by": { "$eq": None }})
+            return self.connection.game_keys.count({"redeemed_by": {"$eq": None}})
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -443,11 +371,12 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    # need to update data here to include guild_id
     def get_game_keys_redeemed_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.game_keys.count({ "redeemed_by": { "$ne": None }})
+            return self.connection.game_keys.count({"redeemed_by": {"$ne": None}})
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -455,11 +384,12 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    # need to update data here to include guild_id
     def get_minecraft_whitelisted_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.minecraft_users.count({ "whitelist": { "$eq": True }})
+            return self.connection.minecraft_users.count({"whitelist": {"$eq": True}})
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -467,11 +397,23 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_logs(self, guild_id: int):
+    def get_logs(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.logs.find({ "guild_id": { "$in": [ str(guild_id), None ] } }))
+            return self.connection.logs.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                "level": "$level",
+                            },
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -479,11 +421,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_team_requests_count(self, guild_id: int):
+    def get_team_requests_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.stream_team_requests.count({ "guild_id": int(guild_id) })
+            return self.connection.stream_team_requests.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -491,11 +442,21 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_birthdays_count(self, guild_id: int):
+    def get_birthdays_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.birthdays.count({ "guild_id": str(guild_id) })
+            return self.connection.birthdays.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
+
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -503,7 +464,7 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_first_messages_today_count(self, guild_id: int):
+    def get_first_messages_today_count(self):
         try:
             if self.connection is None:
                 self.open()
@@ -512,7 +473,17 @@ class MongoDatabase:
             # convert utc_today to unix timestamp
             utc_today_ts = int((utc_today - datetime.datetime(1970, 1, 1)).total_seconds())
 
-            return self.connection.first_message.count({ "guild_id": str(guild_id), "timestamp": { "$gte": utc_today_ts } })
+            return self.connection.first_message.aggregate(
+                [
+                    {"$match": {"timestamp": {"$gte": utc_today_ts}}},
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -520,11 +491,20 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_messages_tracked_count(self, guild_id: int):
+    def get_messages_tracked_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.messages.count({ "guild_id": str(guild_id) })
+            return self.connection.messages.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": "$guild_id",
+                            "total": {"$sum": {"$size": "$messages"}},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -532,7 +512,7 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_user_messages_tracked(self, guild_id: int, limit: int = 10):
+    def get_user_messages_tracked(self):
         try:
             if self.connection is None:
                 self.open()
@@ -540,40 +520,32 @@ class MongoDatabase:
             # join the users collection to get the username
             # sort by count descending
 
-            return list(self.connection.messages.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id",
-                        "count": { "$sum": { "$size": "$messages" } }
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user"
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": { "user.bot": { "$ne": True } }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-                {
-                    "$limit": limit
-                }
-            ]))
-            # return list(self.connection.messages.find({ "guild_id": str(guild_id) }).sort("count", -1).limit(limit))
+            return self.connection.messages.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                "user_id": "$user_id",
+                            },
+                            "total": {"$sum": {"$size": "$messages"}},
+                        },
+                    },
+                    {
+                        "$lookup": {
+                            "from": "users",
+                            "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                            "pipeline": [
+                                {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                            ],
+                            "as": "user",
+                        }
+                    },
+                    {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                    {"$sort": {"total": -1}},
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -581,11 +553,32 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_known_users(self, guild_id: int):
+    def get_known_users(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.users.find({ "guild_id": str(guild_id) }))
+            return self.connection.users.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                # if bot is true, then type is bot.
+                                # if system is true, then type is system.
+                                # else type is user
+                                "type": {
+                                    "$cond": [
+                                        {"$eq": ["$bot", True]},
+                                        "bot",
+                                        {"$cond": [{"$eq": ["$system", True]}, "system", "user"]},
+                                    ]
+                                },
+                            },
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -593,43 +586,38 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_top_taco_gifters(self, guild_id: int, limit: int = 10):
+    def get_top_taco_gifters(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.taco_gifts.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id",
-                        "count": { "$sum": "$count"}
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user"
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": { "user.bot": { "$ne": True } }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-                {
-                    "$limit": limit
-                }
-            ]))
+            return list(
+                self.connection.taco_gifts.aggregate(
+                    [
+                        {
+                            "$group": {
+                                "_id": {
+                                    "user_id": "$user_id",
+                                    "guild_id": "$guild_id",
+                                },
+                                "total": {"$sum": "$count"},
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                        {"$sort": {"total": -1}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -637,43 +625,38 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_top_taco_reactors(self, guild_id: int, limit: int = 10):
+    def get_top_taco_reactors(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.tacos_reactions.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id",
-                        "count": { "$sum": 1 }
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user"
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": { "user.bot": { "$ne": True } }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-                {
-                    "$limit": limit
-                }
-            ]))
+            return list(
+                self.connection.tacos_reactions.aggregate(
+                    [
+                        {
+                            "$group": {
+                                "_id": {
+                                    "user_id": "$user_id",
+                                    "guild_id": "$guild_id",
+                                },
+                                "total": {"$sum": 1},
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                        {"$sort": {"total": -1}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -681,43 +664,38 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_top_taco_receivers(self, guild_id: int, limit: int = 10):
+    def get_top_taco_receivers(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.tacos.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id",
-                        "count": { "$sum": "$count"}
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user"
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": { "user.bot": { "$ne": True } }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-                {
-                    "$limit": limit
-                }
-            ]))
+            return list(
+                self.connection.tacos.aggregate(
+                    [
+                        {
+                            "$group": {
+                                "_id": {
+                                    "user_id": "$user_id",
+                                    "guild_id": "$guild_id",
+                                },
+                                "total": {"$sum": "$count"},
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                        {"$sort": {"total": -1}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -725,44 +703,38 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_live_activity(self, guild_id: int, limit: int = 10):
+    def get_live_activity(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.live_activity.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id), "status": "ONLINE" },
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id" ,
-                        "count": { "$sum": 1 },
-                        #"platform": { "$firstN": { "n": 2, "input": "$platform" } },
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user",
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": { "user.bot": { "$ne": True } }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-                {
-                    "$limit": limit
-                }
-            ]))
+            return self.connection.live_activity.aggregate(
+                [
+                    {"$match": {"status": "ONLINE"}},
+                    {
+                        "$group": {
+                            "_id": {
+                                "user_id": "$user_id",
+                                "guild_id": "$guild_id",
+                                "platform": "$platform",
+                            },
+                            "total": {"$sum": 1},
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": "users",
+                            "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                            "pipeline": [
+                                {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                            ],
+                            "as": "user",
+                        }
+                    },
+                    {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                    {"$sort": {"total": -1}},
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -770,11 +742,23 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_suggestions(self, guild_id: int):
+    def get_suggestions(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.suggestions.find({ "guild_id": str(guild_id) }))
+            return self.connection.suggestions.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                "state": "$state",
+                            },
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -782,11 +766,23 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_user_join_leave(self, guild_id: int):
+    def get_user_join_leave(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.user_join_leave.find({ "guild_id": str(guild_id) }))
+            return self.connection.user_join_leave.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                "type": "$type",
+                            },
+                            "total": {"$sum": 1},
+                        },
+                    },
+                ]
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -794,43 +790,28 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_food_posts_count(self, guild_id: int):
+    def get_food_posts_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return list(self.connection.food_posts.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$user_id",
-                        "count": { "$sum": 1 }
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": "users",
-                        "localField": "_id",
-                        "foreignField": "user_id",
-                        "as": "user"
-                    }
-                },
-                {
-                    # remove items where the user is not found
-                    "$match": { "user": { "$ne": [] } }
-                },
-                # remove items where the user is a bot
-                {
-                    "$match": {
-                        "user.bot": { "$ne": True },
-                        "user.system": { "$ne": True }
-                    }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-            ]))
+            return self.connection.food_posts.aggregate(
+                    [
+                        {"$group": {"_id": {"user_id": "$user_id", "guild_id": "$guild_id"}, "total": {"$sum": 1}}},
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                        {"$sort": {"total": -1}},
+                    ]
+                )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -838,38 +819,33 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
-    def get_taco_logs_counts(self, guild_id: int):
+    def get_taco_logs_counts(self):
         try:
             if self.connection is None:
                 self.open()
 
-# this is the log entry docuemnt
-# {
-#     _id: ObjectId('64823bc04b3af18f34e7e2ec'),
-#     guild_id: '942532970613473293',
-#     from_user_id: '592430549277343746',
-#     to_user_id: '262031734260891648',
-#     count: 1,
-#     type: 'REACT_REWARD',
-#     reason: 'reacting to darthminos\'s message with a 🌮',
-#     timestamp: 1686256576.813649
-# }
+            # this is the log entry docuemnt
+            # {
+            #     _id: ObjectId('64823bc04b3af18f34e7e2ec'),
+            #     guild_id: '942532970613473293',
+            #     from_user_id: '592430549277343746',
+            #     to_user_id: '262031734260891648',
+            #     count: 1,
+            #     type: 'REACT_REWARD',
+            #     reason: 'reacting to darthminos\'s message with a 🌮',
+            #     timestamp: 1686256576.813649
+            # }
 
-# aggregate all tacos_log entries for a guild, grouped by type, and sum the count
-            logs = list(self.connection.tacos_log.aggregate([
-                {
-                    "$match": {"guild_id": str(guild_id)},
-                },
-                {
-                    "$group": {
-                        "_id": "$type",
-                        "count": { "$sum": "$count" }
-                    }
-                },
-                {
-                    "$sort": { "count": -1 }
-                },
-            ]))
+            # aggregate all tacos_log entries for a guild, grouped by type, and sum the count
+            logs = list(
+                self.connection.tacos_log.aggregate(
+                    [
+                        {"$group": {"_id": {"type": "$type", "guild_id": "$guild_id"}, "total": {"$sum": "$count"}}},
+                        # "guild_id": "$guild_id",
+                        {"$sort": {"total": -1}},
+                    ]
+                )
+            )
             return logs
         except Exception as ex:
             print(ex)
@@ -883,6 +859,134 @@ class MongoDatabase:
             if self.connection is None:
                 self.open()
             return list(self.connection.guilds.find())
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    # get trivia questions, expand the correct users and incorrect users into separate lists of user objects
+    def get_trivia_questions(self) -> list:
+        try:
+            if self.connection is None:
+                self.open()
+            return list(
+                self.connection.trivia_questions.aggregate(
+                    [
+                        {
+                            "$group": {
+                                "_id": {
+                                    "guild_id": "$guild_id",
+                                    "category": "$category",
+                                    "difficulty": "$difficulty",
+                                    "starter_id": "$starter_id",
+                                },
+                                "total": {"$sum": 1},
+                            },
+                        },
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$_id.starter_id", "guild_id": "$_id.guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "starter",
+                            }
+                        },
+                        # {
+                        #     "$lookup": {
+                        #         "from": "users",
+                        #         "let": {"correct_users": "$correct_users"},
+                        #         "pipeline": [
+                        #             {
+                        #                 "$match": {
+                        #                     "guild_id": "$guild_id",
+                        #                     "$expr": {"$in": ["$user_id", "$$correct_users"]},
+                        #                 }
+                        #             }
+                        #         ],
+                        #         "as": "correct_users",
+                        #     }
+                        # },
+                        # {
+                        #     "$lookup": {
+                        #         "from": "users",
+                        #         "let": {"incorrect_users": "$incorrect_users"},
+                        #         "pipeline": [
+                        #             {
+                        #                 "$match": {
+                        #                     "guild_id": "$guild_id",
+                        #                     "$expr": {"$in": ["$user_id", "$$incorrect_users"]},
+                        #                 }
+                        #             }
+                        #         ],
+                        #         "as": "incorrect_users",
+                        #     }
+                        # },
+                        {"$sort": {"timestamp": -1}},
+                    ]
+                )
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+            return []
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_trivia_answer_status_per_user(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return list(
+                self.connection.trivia_questions.aggregate(
+                    [
+                        # unwind correct and incorrect users id.
+                        # look up the user document for each user id
+                        # add a new field to each document to indicate if the user was correct or incorrect
+                        # group by user id and count the number of correct and incorrect answers
+                        # sort by total correct answers
+                        {"$unwind": "$correct_users"},
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$correct_users", "guild_id": "$guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$addFields": {"user.state": "CORRECT"}},
+                        {"$unwind": "$incorrect_users"},
+                        {
+                            "$lookup": {
+                                "from": "users",
+                                "let": {"user_id": "$incorrect_users", "guild_id": "$guild_id"},
+                                "pipeline": [
+                                    {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                    {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                                ],
+                                "as": "user",
+                            }
+                        },
+                        {"$addFields": {"user.state": "INCORRECT"}},
+                        {"$unwind": "$user"},
+                        {
+                            "$group": {
+                                "_id": {"user_id": "$user.user_id", "username": "$user.username", "guild_id": "$user.guild_id", "state": "$user.state"},
+                                "total": {"$sum": 1},
+                            }
+                        },
+                        {"$sort": {"total": -1}},
+                    ]
+                )
+            )
         except Exception as ex:
             print(ex)
             traceback.print_exc()
