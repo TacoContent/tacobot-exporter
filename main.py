@@ -339,6 +339,12 @@ class TacoBotMetrics:
             documentation="The number of trivia answers",
             labelnames=["guild_id", "user_id", "username", "state"])
 
+        self.invites = Gauge(
+            namespace=self.namespace,
+            name=f"invites",
+            documentation="The number of invites",
+            labelnames=["guild_id", "user_id", "username"])
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -607,6 +613,24 @@ class TacoBotMetrics:
             #         "state": t['_id']["status"],
             #     }
             #     self.trivia_answers.labels(**trivia_labels).set(t["total"])
+
+            q_invites = self.db.get_invites_by_user()
+            for row in q_invites:
+                user = {
+                    "user_id": row["_id"]['user_id'],
+                    "username": row["_id"]['user_id']
+                }
+                if row["user"] is not None and len(row["user"]) > 0:
+                    user = row["user"][0]
+
+                invite_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "user_id": row['_id']["user_id"],
+                    "username": row['user'][0]["username"],
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.invites.labels(**invite_labels).set(row["total"])
 
         except Exception as e:
             traceback.print_exc()

@@ -768,7 +768,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_game_keys_available {}",
+          "expr": "tacobot_game_keys_available{guild_id=~\"$guild_id\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -841,7 +841,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_game_keys_redeemed {}",
+          "expr": "tacobot_game_keys_redeemed{guild_id=~\"$guild_id\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -914,7 +914,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_minecraft_whitelist",
+          "expr": "tacobot_minecraft_whitelist{guild_id=~\"$guild_id\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2842,6 +2842,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2877,6 +2878,7 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -2888,7 +2890,30 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "B"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -2896,10 +2921,12 @@
         "x": 0,
         "y": 39
       },
-      "id": 93,
+      "id": 94,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
@@ -2916,25 +2943,26 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (difficulty)",
-          "legendFormat": "{{difficulty}}",
+          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (starter_name)",
+          "legendFormat": "{{starter_name}}",
           "range": true,
           "refId": "A"
-        }
-      ],
-      "title": "Trivia By Difficulty",
-      "transformations": [
+        },
         {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "medium": "MEDIUM"
-            }
-          }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (difficulty)",
+          "hide": false,
+          "legendFormat": "{{difficulty}}",
+          "range": true,
+          "refId": "B"
         }
       ],
+      "title": "Trivia Starter and Difficulty",
+      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2977,6 +3005,7 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -2996,10 +3025,12 @@
         "x": 12,
         "y": 39
       },
-      "id": 94,
+      "id": 92,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
@@ -3016,14 +3047,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (starter_name)",
+          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (category)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Trivia By Starter",
-      "transformations": [],
+      "title": "Trivia By Category",
       "type": "timeseries"
     },
     {
@@ -3145,94 +3175,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 47
-      },
-      "id": 92,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "sum(tacobot_trivia_questions{guild_id=~\"$guild_id\"}) by (category)",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Trivia By Category",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -3242,6 +3184,7 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -3262,8 +3205,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 55
+        "x": 12,
+        "y": 47
       },
       "id": 74,
       "options": {
@@ -3334,6 +3277,7 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -3350,7 +3294,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 55
       },
       "id": 89,
@@ -3380,6 +3324,98 @@
         }
       ],
       "title": "Food Post By User",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 55
+      },
+      "id": 75,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "tacobot_messages{guild_id=~\"$guild_id\"}",
+          "legendFormat": "{{username}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Messages By User",
       "type": "timeseries"
     },
     {
@@ -3533,15 +3569,27 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "TWITCH_CUSTOM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -3549,13 +3597,13 @@
         "x": 12,
         "y": 63
       },
-      "id": 75,
+      "id": 91,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "table",
           "placement": "right",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -3569,13 +3617,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_messages{guild_id=~\"$guild_id\"}",
-          "legendFormat": "{{username}}",
+          "expr": "tacobot_taco_logs{guild_id=~\"$guild_id\"}",
+          "legendFormat": "{{type}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Messages By User",
+      "title": "Tacos By Type",
       "type": "timeseries"
     },
     {
@@ -3619,6 +3667,7 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -3676,6 +3725,7 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3718,27 +3768,15 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "TWITCH_CUSTOM"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -3746,13 +3784,13 @@
         "x": 12,
         "y": 71
       },
-      "id": 91,
+      "id": 77,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "table",
           "placement": "right",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -3766,13 +3804,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_taco_logs{guild_id=~\"$guild_id\"}",
-          "legendFormat": "{{type}}",
+          "expr": "tacobot_gifters{guild_id=~\"$guild_id\"}",
+          "legendFormat": "{{username}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Tacos By Type",
+      "title": "Gift By User",
       "type": "timeseries"
     },
     {
@@ -3932,7 +3970,7 @@
         "x": 12,
         "y": 79
       },
-      "id": 77,
+      "id": 79,
       "options": {
         "legend": {
           "calcs": [],
@@ -3952,13 +3990,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_gifters{guild_id=~\"$guild_id\"}",
+          "expr": "tacobot_reactors {guild_id=~\"$guild_id\"}",
           "legendFormat": "{{username}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Gift By User",
+      "title": "Reacts By User",
       "type": "timeseries"
     },
     {
@@ -4002,12 +4040,14 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4099,7 +4139,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4116,7 +4157,7 @@
         "x": 12,
         "y": 87
       },
-      "id": 79,
+      "id": 81,
       "options": {
         "legend": {
           "calcs": [],
@@ -4136,13 +4177,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "tacobot_reactors {guild_id=~\"$guild_id\"}",
+          "expr": "tacobot_top_tacos{guild_id=~\"$guild_id\"}",
           "legendFormat": "{{username}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Reacts By User",
+      "title": "Tacos Rate By User",
       "type": "timeseries"
     },
     {
@@ -4191,7 +4232,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -4290,189 +4332,6 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 95
-      },
-      "id": 81,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "tacobot_top_tacos{guild_id=~\"$guild_id\"}",
-          "legendFormat": "{{username}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Tacos Rate By User",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 61,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 103
-      },
-      "id": 48,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "tacobot_tacos{guild_id=~\"$guild_id\"}",
-          "legendFormat": "TACOS 🌮",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Tacos 🌮 Earned",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4514,7 +4373,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4545,7 +4405,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 103
+        "y": 95
       },
       "id": 50,
       "options": {
@@ -4617,7 +4477,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 61,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -4625,12 +4485,12 @@
               "viz": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 2,
+            "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -4641,12 +4501,16 @@
             }
           },
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           }
@@ -4657,15 +4521,15 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 111
+        "y": 103
       },
-      "id": 71,
+      "id": 48,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "placement": "bottom",
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -4679,25 +4543,13 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(round(delta(tacobot_messages{guild_id=~\"$guild_id\"}[30m])))",
-          "legendFormat": "Messages",
+          "expr": "tacobot_tacos{guild_id=~\"$guild_id\"}",
+          "legendFormat": "TACOS 🌮",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_first_messages_today{guild_id=~\"$guild_id\"}[60m]))",
-          "hide": false,
-          "legendFormat": "First Message",
-          "range": true,
-          "refId": "B"
         }
       ],
-      "title": "Messages",
+      "title": "Tacos 🌮 Earned",
       "type": "timeseries"
     },
     {
@@ -4746,7 +4598,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -4818,7 +4671,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 111
+        "y": 103
       },
       "id": 62,
       "options": {
@@ -4905,7 +4758,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4981,7 +4835,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 111
+        "y": 103
       },
       "id": 56,
       "options": {
@@ -5029,7 +4883,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 12,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -5052,16 +4906,15 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
+                "color": "green",
+                "value": null
               }
             ]
           }
@@ -5072,9 +4925,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 119
+        "y": 111
       },
-      "id": 52,
+      "id": 71,
       "options": {
         "legend": {
           "calcs": [],
@@ -5094,8 +4947,8 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "round(delta(tacobot_live_twitch{guild_id=~\"$guild_id\"}[60m]))",
-          "legendFormat": "Twitch",
+          "expr": "sum(round(delta(tacobot_messages{guild_id=~\"$guild_id\"}[30m])))",
+          "legendFormat": "Messages",
           "range": true,
           "refId": "A"
         },
@@ -5105,14 +4958,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "round(delta(tacobot_live_youtube{guild_id=~\"$guild_id\"}[60m]))",
+          "expr": "round(delta(tacobot_first_messages_today{guild_id=~\"$guild_id\"}[60m]))",
           "hide": false,
-          "legendFormat": "Youtube",
+          "legendFormat": "First Message",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "🔴 Going Live ",
+      "title": "Messages",
       "type": "timeseries"
     },
     {
@@ -5155,12 +5008,15 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5175,7 +5031,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 119
+        "y": 111
       },
       "id": 54,
       "options": {
@@ -5204,6 +5060,102 @@
         }
       ],
       "title": "🔴 LIVE NOW",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 119
+      },
+      "id": 82,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "tacobot_live_activity {guild_id=~\"$guild_id\", platform!=\"\"}",
+          "legendFormat": "{{username}} ({{platform}})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "🔴 Live By User",
       "type": "timeseries"
     },
     {
@@ -5252,7 +5204,149 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 119
+      },
+      "id": 67,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "round(delta(tacobot_tqotd_answers{guild_id=~\"$guild_id\"}[24h]))",
+          "legendFormat": "TQOTD",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "round(delta(tacobot_mentalmondays_answers{guild_id=~\"$guild_id\"}[24h]))",
+          "hide": false,
+          "legendFormat": "Mental Monday",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "round(delta(tacobot_tacotuesday_answers{guild_id=~\"$guild_id\"}[24h]))",
+          "hide": false,
+          "legendFormat": "Taco Tuesday",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "round(delta(tacobot_wdyctw_answers{guild_id=~\"$guild_id\"}[24h]))",
+          "hide": false,
+          "legendFormat": "WDYCTW",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "round(delta(tacobot_techthurs_answers{guild_id=~\"$guild_id\"}[24h]))",
+          "hide": false,
+          "legendFormat": "Tech Thursday",
+          "range": true,
+          "refId": "E"
+        }
+      ],
+      "title": "Interactions",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5345,241 +5439,6 @@
       ],
       "title": "Interaction Topics",
       "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 12,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 127
-      },
-      "id": 82,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Last *",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "tacobot_live_activity {guild_id=~\"$guild_id\", platform!=\"\"}",
-          "legendFormat": "{{username}} ({{platform}})",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "🔴 Live By User",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 135
-      },
-      "id": 67,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_tqotd_answers{guild_id=~\"$guild_id\"}[24h]))",
-          "legendFormat": "TQOTD",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_mentalmondays_answers{guild_id=~\"$guild_id\"}[24h]))",
-          "hide": false,
-          "legendFormat": "Mental Monday",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_tacotuesday_answers{guild_id=~\"$guild_id\"}[24h]))",
-          "hide": false,
-          "legendFormat": "Taco Tuesday",
-          "range": true,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_wdyctw_answers{guild_id=~\"$guild_id\"}[24h]))",
-          "hide": false,
-          "legendFormat": "WDYCTW",
-          "range": true,
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "round(delta(tacobot_techthurs_answers{guild_id=~\"$guild_id\"}[24h]))",
-          "hide": false,
-          "legendFormat": "Tech Thursday",
-          "range": true,
-          "refId": "E"
-        }
-      ],
-      "title": "Interactions",
-      "type": "timeseries"
     }
   ],
   "refresh": "5m",
@@ -5590,7 +5449,7 @@
     "list": [
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "935294040386183228",
           "value": "935294040386183228"
         },
@@ -5625,6 +5484,6 @@
   "timezone": "",
   "title": "Tacobot",
   "uid": "GnSFRx0Vz",
-  "version": 65,
+  "version": 70,
   "weekStart": ""
 }

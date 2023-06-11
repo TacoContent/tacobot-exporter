@@ -919,6 +919,7 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    # TODO: this is not working
     def get_trivia_answer_status_per_user(self):
         try:
             if self.connection is None:
@@ -971,6 +972,77 @@ class MongoDatabase:
                     {"$sort": {"total": -1}},
                 ]
             )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
+    def get_invites_by_user(self):
+        # invite model:
+        # {
+        #  code: 'RejCsPqBvn',
+        #  guild_id: '942532970613473293',
+        #  info: {
+        #      id: 'RejCsPqBvn',
+        #      code: 'RejCsPqBvn',
+        #      inviter_id: '262031734260891648',
+        #      uses: 3,
+        #      max_uses: 0,
+        #      max_age: 0,
+        #      temporary: false,
+        #      created_at: ISODate('2022-03-01T18:01:20.153Z'),
+        #      revoked: null,
+        #      channel_id: '948278701290840074',
+        #      url: 'https://discord.gg/RejCsPqBvn'
+        #  },
+        #  timestamp: 1686462431.127954,
+        #  invites: [
+        #      {
+        #          user_id: '905226717654822912',
+        #          timestamp: 1646402498.029469
+        #      },
+        #      {
+        #          user_id: '905226717654822912',
+        #          timestamp: 1646402737.964417
+        #      },
+        #      {
+        #          user_id: '905226717654822912',
+        #          timestamp: 1646402924.642139
+        #      }
+        #  ]
+        # }
+        try:
+            if self.connection is None:
+                self.open()
+            # info.inviter_id is the user who created the invite
+            # info.uses is the number of times the invite was used
+
+            return self.connection.invite_codes.aggregate([
+                {
+                    "$group": {
+                        "_id": {
+                            "user_id": "$info.inviter_id",
+                            "guild_id": "$guild_id"
+                        },
+                        "total": {"$sum": "$info.uses"}
+                    }
+                },
+                {
+                        "$lookup": {
+                            "from": "users",
+                            "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                            "pipeline": [
+                                {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                                {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                            ],
+                            "as": "user",
+                        }
+                    },
+                    {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                    {"$sort": {"total": -1}},
+            ])
         except Exception as ex:
             print(ex)
             traceback.print_exc()
