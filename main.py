@@ -215,19 +215,19 @@ class TacoBotMetrics:
             namespace=self.namespace,
             name=f"game_keys_available",
             documentation="The number of game keys available",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_game_keys_claimed = Gauge(
             namespace=self.namespace,
             name=f"game_keys_redeemed",
             documentation="The number of game keys claimed",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_minecraft_whitelist = Gauge(
             namespace=self.namespace,
             name=f"minecraft_whitelist",
             documentation="The number of users on the minecraft whitelist",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_logs = Gauge(
             namespace=self.namespace,
@@ -454,13 +454,16 @@ class TacoBotMetrics:
                 self.sum_tacotuesday_answers.labels(guild_id=row['_id']).set(row['total'])
 
             q_game_keys_available = self.db.get_game_keys_available_count()
-            self.sum_game_keys_available.set(q_game_keys_available)
+            for row in q_game_keys_available:
+                self.sum_game_keys_available.labels(guild_id=row['_id']).set(row['total'])
 
             q_game_keys_claimed = self.db.get_game_keys_redeemed_count()
-            self.sum_game_keys_claimed.set(q_game_keys_claimed)
+            for row in q_game_keys_claimed:
+                self.sum_game_keys_claimed.labels(guild_id=row['_id']).set(row['total'])
 
             q_minecraft_whitelisted = self.db.get_minecraft_whitelisted_count()
-            self.sum_minecraft_whitelist.set(q_minecraft_whitelisted)
+            for row in q_minecraft_whitelisted:
+                self.sum_minecraft_whitelist.labels(guild_id=row['_id']).set(row['total'])
 
             q_stream_team_requests = self.db.get_team_requests_count()
             for row in q_stream_team_requests:
