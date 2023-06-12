@@ -397,7 +397,8 @@ class MongoDatabase:
                     {
                         "$group": {
                             "_id": {
-                                "guild_id": "$guild_id",
+                                # if guild_id is None, then set it to 0
+                                "guild_id": { "$ifNull": ["$guild_id", 0] },
                                 "level": "$level",
                             },
                             "total": {"$sum": 1},
@@ -761,7 +762,7 @@ class MongoDatabase:
                         "$group": {
                             "_id": {
                                 "guild_id": "$guild_id",
-                                "type": "$type",
+                                "action": "$action",
                             },
                             "total": {"$sum": 1},
                         },
