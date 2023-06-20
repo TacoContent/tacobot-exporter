@@ -69,7 +69,7 @@ class TacoBotMetrics:
             "guild_id",
             "user_id",
             "username",
-            # "platform",
+            "platform",
         ]
 
         # merge labels and config labels
@@ -147,18 +147,11 @@ class TacoBotMetrics:
             labelnames=labels,
         )
 
-        self.sum_live_twitch = Gauge(
+        self.sum_live_platform = Gauge(
             namespace=self.namespace,
-            name=f"live_twitch",
-            documentation="The number of twitch users that have gone live",
-            labelnames=labels,
-        )
-
-        self.sum_live_youtube = Gauge(
-            namespace=self.namespace,
-            name=f"live_youtube",
-            documentation="The number of youtube users that have gone live",
-            labelnames=labels,
+            name=f"live_platform",
+            documentation="The number of users that have gone live on a platform",
+            labelnames=["guild_id", "platform"],
         )
 
         self.sum_wdyctw = Gauge(
@@ -222,19 +215,19 @@ class TacoBotMetrics:
             namespace=self.namespace,
             name=f"game_keys_available",
             documentation="The number of game keys available",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_game_keys_claimed = Gauge(
             namespace=self.namespace,
             name=f"game_keys_redeemed",
             documentation="The number of game keys claimed",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_minecraft_whitelist = Gauge(
             namespace=self.namespace,
             name=f"minecraft_whitelist",
             documentation="The number of users on the minecraft whitelist",
-            labelnames=[])
+            labelnames=["guild_id"])
 
         self.sum_logs = Gauge(
             namespace=self.namespace,
@@ -326,6 +319,37 @@ class TacoBotMetrics:
             documentation="The number of food posts",
             labelnames=user_labels)
 
+        self.guilds = Gauge(
+            namespace=self.namespace,
+            name=f"guilds",
+            documentation="The number of guilds",
+            labelnames=["guild_id", "name"])
+
+        # result is either correct or incorrect
+        trivia_labels = ["guild_id", "difficulty", "category", "starter_id", "starter_name"]
+        self.trivia_questions = Gauge(
+            namespace=self.namespace,
+            name=f"trivia_questions",
+            documentation="The number of trivia questions",
+            labelnames=trivia_labels)
+
+        self.trivia_answers = Gauge(
+            namespace=self.namespace,
+            name=f"trivia_answers",
+            documentation="The number of trivia answers",
+            labelnames=["guild_id", "user_id", "username", "state"])
+
+        self.invites = Gauge(
+            namespace=self.namespace,
+            name=f"invites",
+            documentation="The number of invites",
+            labelnames=["guild_id", "user_id", "username"])
+
+        self.system_actions = Gauge(
+            namespace=self.namespace,
+            name=f"system_actions",
+            documentation="The number of system actions",
+            labelnames=["guild_id", "action"])
 
         self.build_info = Gauge(
             namespace=self.namespace,
@@ -352,155 +376,278 @@ class TacoBotMetrics:
     def fetch(self):
         error_count = 0
         try:
-            guild_id = 935294040386183228
 
-            labels = {
-                "guild_id": guild_id,
-            }
+            q_guilds = self.db.get_guilds()
+            known_guilds = []
+            for row in q_guilds:
+                known_guilds.append(row['guild_id'])
+                self.guilds.labels(guild_id=row['guild_id'], name=row['name']).set(1)
 
-            error_log_labels = {
-                "guild_id": guild_id,
-                "level": "ERROR",
-            }
+            q_all_tacos = self.db.get_sum_all_tacos()
+            for row in q_all_tacos:
+                self.sum_tacos.labels(guild_id=row['_id']).set(row['total'])
 
-            warn_log_labels = {
-                "guild_id": guild_id,
-                "level": "WARNING",
-            }
+            q_all_gift_tacos = self.db.get_sum_all_gift_tacos()
+            for row in q_all_gift_tacos:
+                self.sum_taco_gifts.labels(guild_id=row['_id']).set(row['total'])
 
+            q_all_reaction_tacos = self.db.get_sum_all_taco_reactions()
+            for row in q_all_reaction_tacos:
+                self.sum_taco_reactions.labels(guild_id=row['_id']).set(row['total'])
 
-            guage_values = self.db.get_exporter_sum_data(guild_id=guild_id)
+            q_live_now = self.db.get_live_now_count()
+            for row in q_live_now:
+                self.sum_live_now.labels(guild_id=row['_id']).set(row['total'])
 
-            self.sum_tacos.labels(**labels).set(guage_values['all_tacos'])
-            self.sum_taco_gifts.labels(**labels).set(guage_values['all_gift_tacos'])
-            self.sum_taco_reactions.labels(**labels).set(guage_values['all_reaction_tacos'])
-            self.sum_live_now.labels(**labels).set(guage_values['live_now'])
-            self.sum_twitch_channels.labels(**labels).set(guage_values['twitch_channels'])
-            self.sum_twitch_tacos.labels(**labels).set(guage_values['all_twitch_tacos'])
-            self.sum_twitch_linked_accounts.set(guage_values['twitch_linked_accounts'])
-            self.sum_tqotd_questions.labels(**labels).set(guage_values['tqotd'])
-            self.sum_tqotd_answers.labels(**labels).set(guage_values['tqotd_answers'])
-            self.sum_invited_users.labels(**labels).set(guage_values['invited_users'])
-            self.sum_live_twitch.labels(**labels).set(guage_values['live_twitch'])
-            self.sum_live_youtube.labels(**labels).set(guage_values['live_youtube'])
-            self.sum_wdyctw.labels(**labels).set(guage_values['wdyctw'])
-            self.sum_wdyctw_answers.labels(**labels).set(guage_values['wdyctw_answers'])
-            self.sum_techthurs.labels(**labels).set(guage_values['techthurs'])
-            self.sum_techthurs_answers.labels(**labels).set(guage_values['techthurs_answers'])
-            self.sum_mentalmondays.labels(**labels).set(guage_values['mentalmondays'])
-            self.sum_mentalmondays_answers.labels(**labels).set(guage_values['mentalmondays_answers'])
-            self.sum_tacotuesday.labels(**labels).set(guage_values['tacotuesday'])
-            self.sum_tacotuesday_answers.labels(**labels).set(guage_values['tacotuesday_answers'])
-            self.sum_game_keys_available.set(guage_values['game_keys_available'])
-            self.sum_game_keys_claimed.set(guage_values['game_keys_redeemed'])
-            self.sum_minecraft_whitelist.set(guage_values['minecraft_whitelisted'])
-            self.sum_stream_team_requests.labels(**labels).set(guage_values['stream_team_requests'])
-            self.sum_birthdays.labels(**labels).set(guage_values['birthdays'])
-            self.sum_first_messages.labels(**labels).set(guage_values['first_messages_today'])
+            # self.sum_twitch_channels.labels(**labels).set(guage_values['twitch_channels'])
+            q_twitch_channels = self.db.get_twitch_channel_bot_count()
+            for row in q_twitch_channels:
+                self.sum_twitch_channels.labels(guild_id=row['_id']).set(row['total'])
 
-            logs = self.db.get_logs(guild_id=guild_id)
-            print(logs)
-            for l in ["DEBUG", "INFO", "WARNING", "ERROR"]:
-                cnt = len([q for q in logs if q["level"] == l])
-                self.sum_logs.labels(**labels, level=l).set(cnt)
+            q_all_twitch_tacos = self.db.get_sum_all_twitch_tacos()
+            for row in q_all_twitch_tacos:
+                self.sum_twitch_tacos.labels(guild_id=row['_id']).set(row['total'])
 
-            q_known_users = self.db.get_known_users(guild_id=guild_id)
-            bot_labels = { "guild_id": guild_id, "type": "bot"}
+            q_twitch_linked_accounts = self.db.get_twitch_linked_accounts_count()
+            self.sum_twitch_linked_accounts.set(q_twitch_linked_accounts or 0)
 
-            bot_count = len([ b for b in q_known_users if b["bot"] ])
-            self.known_users.labels(**bot_labels).set(bot_count)
+            q_tqotd_questions = self.db.get_tqotd_questions_count()
+            for row in q_tqotd_questions:
+                self.sum_tqotd_questions.labels(guild_id=row['_id']).set(row['total'])
 
-            system_labels = { "guild_id": guild_id, "type": "system"}
-            system_count = len([ b for b in q_known_users if b["system"] ])
-            self.known_users.labels(**system_labels).set(system_count)
+            q_tqotd_answers = self.db.get_tqotd_answers_count()
+            for row in q_tqotd_answers:
+                self.sum_tqotd_answers.labels(guild_id=row['_id']).set(row['total'])
 
-            user_labels = { "guild_id": guild_id, "type": "user"}
-            user_count = len(q_known_users) - system_count - bot_count
-            self.known_users.labels(**user_labels).set(user_count)
+            q_invited_users = self.db.get_invited_users_count()
+            for row in q_invited_users:
+                self.sum_invited_users.labels(guild_id=row['_id']).set(row['total'])
+
+            q_live_platform = self.db.get_sum_live_by_platform()
+            for row in q_live_platform:
+                self.sum_live_platform.labels(guild_id=row['_id']['guild_id'], platform=row['_id']['platform']).set(row['total'])
+
+            q_wdyctw = self.db.get_wdyctw_questions_count()
+            for row in q_wdyctw:
+                self.sum_wdyctw.labels(guild_id=row['_id']).set(row['total'])
+
+            q_wdyctw_answers = self.db.get_wdyctw_answers_count()
+            for row in q_wdyctw_answers:
+                self.sum_wdyctw_answers.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_techthurs.labels(**labels).set(guage_values['techthurs'])
+            q_techthurs = self.db.get_techthurs_questions_count()
+            for row in q_techthurs:
+                self.sum_techthurs.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_techthurs_answers.labels(**labels).set(guage_values['techthurs_answers'])
+            q_techthurs_answers = self.db.get_techthurs_answers_count()
+            for row in q_techthurs_answers:
+                self.sum_techthurs_answers.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_mentalmondays.labels(**labels).set(guage_values['mentalmondays'])
+            q_mentalmondays = self.db.get_mentalmondays_questions_count()
+            for row in q_mentalmondays:
+                self.sum_mentalmondays.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_mentalmondays_answers.labels(**labels).set(guage_values['mentalmondays_answers'])
+            q_mentalmondays_answers = self.db.get_mentalmondays_answers_count()
+            for row in q_mentalmondays_answers:
+                self.sum_mentalmondays_answers.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_tacotuesday.labels(**labels).set(guage_values['tacotuesday'])
+            q_tacotuesday = self.db.get_tacotuesday_questions_count()
+            for row in q_tacotuesday:
+                self.sum_tacotuesday.labels(guild_id=row['_id']).set(row['total'])
+
+            # self.sum_tacotuesday_answers.labels(**labels).set(guage_values['tacotuesday_answers'])
+            q_tacotuesday_answers = self.db.get_tacotuesday_answers_count()
+            for row in q_tacotuesday_answers:
+                self.sum_tacotuesday_answers.labels(guild_id=row['_id']).set(row['total'])
+
+            q_game_keys_available = self.db.get_game_keys_available_count()
+            for row in q_game_keys_available:
+                self.sum_game_keys_available.labels(guild_id=row['_id']).set(row['total'])
+
+            q_game_keys_claimed = self.db.get_game_keys_redeemed_count()
+            for row in q_game_keys_claimed:
+                self.sum_game_keys_claimed.labels(guild_id=row['_id']).set(row['total'])
+
+            q_minecraft_whitelisted = self.db.get_minecraft_whitelisted_count()
+            for row in q_minecraft_whitelisted:
+                self.sum_minecraft_whitelist.labels(guild_id=row['_id']).set(row['total'])
+
+            q_stream_team_requests = self.db.get_team_requests_count()
+            for row in q_stream_team_requests:
+                self.sum_stream_team_requests.labels(guild_id=row['_id']).set(row['total'])
+
+            q_birthdays = self.db.get_birthdays_count()
+            for row in q_birthdays:
+                self.sum_birthdays.labels(guild_id=row['_id']).set(row['total'])
+
+            q_first_messages_today = self.db.get_first_messages_today_count()
+            for row in q_first_messages_today:
+                self.sum_first_messages.labels(guild_id=row['_id']).set(row['total'])
+
+            logs = self.db.get_logs()
+            for gid in known_guilds:
+                for level in ['INFO', 'WARNING', 'ERROR', 'DEBUG']:
+                    t_labels = { "guild_id": gid, "level": level }
+                    self.sum_logs.labels(**t_labels).set(0)
+            for row in logs:
+                self.sum_logs.labels(guild_id=row['_id']['guild_id'], level=row['_id']['level']).set(row["total"])
+
+            q_known_users = self.db.get_known_users()
+            for row in q_known_users:
+                self.known_users.labels(guild_id=row['_id']['guild_id'], type=row['_id']['type']).set(row['total'])
 
             # loop top messages and add to histogram
-            q_top_messages = self.db.get_user_messages_tracked(guild_id=guild_id, limit=50)
+            q_top_messages = self.db.get_user_messages_tracked()
             for u in q_top_messages:
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": u["user"][0]['username'] }
-                self.top_messages.labels(**user_labels).set(u["count"])
+                user = {
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
+                }
+                if u["user"] is not None and len(u["user"]) > 0:
+                    user = u["user"][0]
+
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'] }
+                self.top_messages.labels(**user_labels).set(u["total"])
 
 
-            q_top_gifters = self.db.get_top_taco_gifters(guild_id=guild_id, limit=50)
+            q_top_gifters = self.db.get_top_taco_gifters()
             for u in q_top_gifters:
                 user = {
-                    "user_id": u["_id"],
-                    "username": u["_id"]
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
                 }
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.top_gifters.labels(**user_labels).set(u["count"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": u["_id"]['user_id'], "username": user['username'] }
+                self.top_gifters.labels(**user_labels).set(u["total"])
 
-            q_top_reactors = self.db.get_top_taco_reactors(guild_id=guild_id, limit=50)
+            q_top_reactors = self.db.get_top_taco_reactors()
             for u in q_top_reactors:
                 user = {
-                    "user_id": u["_id"],
-                    "username": u["_id"]
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
                 }
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.top_reactors.labels(**user_labels).set(u["count"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'] }
+                self.top_reactors.labels(**user_labels).set(u["total"])
 
-            q_top_tacos = self.db.get_top_taco_receivers(guild_id=guild_id, limit=50)
+            q_top_tacos = self.db.get_top_taco_receivers()
             for u in q_top_tacos:
                 user = {
-                    "user_id": u["_id"],
-                    "username": u["_id"]
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
                 }
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.top_tacos.labels(**user_labels).set(u["count"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'] }
+                self.top_tacos.labels(**user_labels).set(u["total"])
 
-            q_top_live = self.db.get_live_activity(guild_id=guild_id, limit=50)
+            q_top_live = self.db.get_live_activity()
             for u in q_top_live:
                 user = {
-                    "user_id": u["_id"],
-                    "username": u["_id"]
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
                 }
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.top_live_activity.labels(**user_labels).set(u["count"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'], "platform": u["_id"]['platform'] }
+                self.top_live_activity.labels(**user_labels).set(u["total"])
 
-            q_suggestions = self.db.get_suggestions(guild_id=guild_id)
-            for state in ["ACTIVE", "APPROVED", "REJECTED", "IMPLEMENTED", "CONSIDERED", "DELETED", "CLOSED"]:
-                suggestion_labels = { "guild_id": guild_id, "status": state }
-                cnt = len([q for q in q_suggestions if q["state"] == state])
-                self.suggestions.labels(**suggestion_labels).set(cnt)
+            q_suggestions = self.db.get_suggestions()
+            for gid in known_guilds:
+                for state in ["ACTIVE", "APPROVED", "REJECTED", "IMPLEMENTED", "CONSIDERED", "DELETED", "CLOSED"]:
+                    suggestion_labels = { "guild_id": gid, "status": state }
+                    self.suggestions.labels(**suggestion_labels).set(0)
+            for row in q_suggestions:
+                suggestion_labels = { "guild_id": row['_id']['guild_id'], "status": row['_id']['state'] }
+                self.suggestions.labels(**suggestion_labels).set(row["total"])
 
-            q_join_leave = self.db.get_user_join_leave(guild_id=guild_id)
-            for state in ["JOIN", "LEAVE"]:
-                join_leave_labels = { "guild_id": guild_id, "action": state }
-                cnt = len([q for q in q_join_leave if q["action"] == state])
-                self.user_join_leave.labels(**join_leave_labels).set(cnt)
+            q_join_leave = self.db.get_user_join_leave()
+            for gid in known_guilds:
+                for state in ["JOIN", "LEAVE"]:
+                    join_leave_labels = { "guild_id": gid, "action": state }
+                    self.user_join_leave.labels(**join_leave_labels).set(0)
 
-            q_food = self.db.get_food_posts_count(guild_id=guild_id)
+            for row in q_join_leave:
+                join_leave_labels = { "guild_id": row['_id']['guild_id'], "action": row['_id']['action'] }
+                self.user_join_leave.labels(**join_leave_labels).set(row["total"])
+
+            q_food = self.db.get_food_posts_count()
             for u in q_food:
                 user = {
-                    "user_id": u["_id"],
-                    "username": u["_id"]
+                    "user_id": u["_id"]['user_id'],
+                    "username": u["_id"]['user_id']
                 }
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": guild_id, "user_id": u["_id"], "username": user['username'] }
-                self.food_posts.labels(**user_labels).set(u["count"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'] }
+                self.food_posts.labels(**user_labels).set(u["total"])
 
-            q_taco_logs = self.db.get_taco_logs_counts(guild_id=guild_id)
+            q_taco_logs = self.db.get_taco_logs_counts()
             for t in q_taco_logs:
-                taco_labels = { "guild_id": guild_id, "type": t["_id"] or "UNKNOWN" }
-                self.taco_logs.labels(**taco_labels).set(t["count"])
+                taco_labels = { "guild_id": t["_id"]['guild_id'], "type": t["_id"]['type'] or "UNKNOWN" }
+                self.taco_logs.labels(**taco_labels).set(t["total"])
+
+            q_trivia = self.db.get_trivia_questions()
+            for t in q_trivia:
+                trivia_labels = {
+                    "guild_id": t['_id']["guild_id"],
+                    "category": t['_id']["category"],
+                    "difficulty": t['_id']["difficulty"],
+                    "starter_id": t['_id']["starter_id"],
+                    "starter_name": t['starter'][0]["username"], }
+                self.trivia_questions.labels(**trivia_labels).set(t["total"])
+
+            # q_trivia = self.db.get_trivia_answer_status_per_user()
+            # print(q_trivia)
+            # for t in q_trivia:
+            #     trivia_labels = {
+            #         "guild_id": t['_id']["guild_id"],
+            #         "user_id": t['_id']["user_id"],
+            #         "username": t['user'][0]["username"],
+            #         "state": t['_id']["status"],
+            #     }
+            #     self.trivia_answers.labels(**trivia_labels).set(t["total"])
+
+            q_invites = self.db.get_invites_by_user()
+            for row in q_invites:
+                user = {
+                    "user_id": row["_id"]['user_id'],
+                    "username": row["_id"]['user_id']
+                }
+                if row["user"] is not None and len(row["user"]) > 0:
+                    user = row["user"][0]
+
+                invite_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "user_id": row['_id']["user_id"],
+                    "username": row['user'][0]["username"],
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.invites.labels(**invite_labels).set(row["total"])
+
+            q_system_actions = self.db.get_system_action_counts()
+            for row in q_system_actions:
+                action_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "action": row['_id']["action"],
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.system_actions.labels(**action_labels).set(row["total"])
+
         except Exception as e:
             traceback.print_exc()
 
