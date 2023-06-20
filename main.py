@@ -345,6 +345,12 @@ class TacoBotMetrics:
             documentation="The number of invites",
             labelnames=["guild_id", "user_id", "username"])
 
+        self.system_actions = Gauge(
+            namespace=self.namespace,
+            name=f"system_actions",
+            documentation="The number of system actions",
+            labelnames=["guild_id", "action"])
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -631,6 +637,16 @@ class TacoBotMetrics:
                 total_count = row["total"]
                 if total_count is not None and total_count > 0:
                     self.invites.labels(**invite_labels).set(row["total"])
+
+            q_system_actions = self.db.get_system_action_counts()
+            for row in q_system_actions:
+                action_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "action": row['_id']["action"],
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.system_actions.labels(**action_labels).set(row["total"])
 
         except Exception as e:
             traceback.print_exc()

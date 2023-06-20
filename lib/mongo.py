@@ -838,6 +838,23 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    def get_system_action_counts(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return self.connection.system_actions.aggregate(
+                [
+                    {"$group": {"_id": {"action": "$action", "guild_id": "$guild_id"}, "total": {"$sum": 1}}},
+                    {"$sort": {"total": -1}},
+                ]
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
     def get_guilds(self):
         try:
             if self.connection is None:
