@@ -167,6 +167,69 @@
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#eea325",
+                "value": null
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "id": 98,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "tacobot_system_actions{action=\"NEW_ACCOUNT_KICK\"}",
+          "instant": false,
+          "legendFormat": "NEW ACCOUNT KICK",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -296,7 +359,7 @@
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 6,
+        "x": 9,
         "y": 1
       },
       "id": 36,
@@ -372,14 +435,14 @@
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 12,
+        "x": 15,
         "y": 1
       },
       "id": 8,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -399,12 +462,11 @@
           },
           "editorMode": "code",
           "expr": "tacobot_live_now{guild_id=~\"$guild_id\"}",
-          "legendFormat": "__auto",
+          "legendFormat": "🔴 LIVE NOW",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "🔴 LIVE NOW",
       "transparent": true,
       "type": "stat"
     },
@@ -449,7 +511,7 @@
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 15,
+        "x": 18,
         "y": 1
       },
       "id": 40,
@@ -526,7 +588,7 @@
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 18,
+        "x": 21,
         "y": 1
       },
       "id": 42,
@@ -588,8 +650,8 @@
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 21,
-        "y": 1
+        "x": 0,
+        "y": 7
       },
       "id": 20,
       "options": {
@@ -660,8 +722,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
-        "x": 0,
+        "w": 3,
+        "x": 3,
         "y": 7
       },
       "id": 14,
@@ -741,8 +803,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
-        "x": 4,
+        "w": 3,
+        "x": 6,
         "y": 7
       },
       "id": 32,
@@ -814,8 +876,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
-        "x": 8,
+        "w": 3,
+        "x": 9,
         "y": 7
       },
       "id": 34,
@@ -2053,8 +2115,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "#2e5a1b",
@@ -2131,8 +2192,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-red",
-                "value": null
+                "color": "super-light-red"
               },
               {
                 "color": "#4a295a",
@@ -2209,8 +2269,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-red",
-                "value": null
+                "color": "super-light-red"
               },
               {
                 "color": "#b46d04",
@@ -2286,8 +2345,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "#2b3451",
@@ -2363,8 +2421,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "#670d0d",
@@ -2440,8 +2497,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-purple",
-                "value": null
+                "color": "super-light-purple"
               }
             ]
           }
@@ -2459,8 +2515,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "blue",
@@ -2483,8 +2538,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "orange",
@@ -2507,8 +2561,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "purple",
@@ -2610,8 +2663,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "light-blue",
-                "value": null
+                "color": "light-blue"
               }
             ]
           }
@@ -2629,8 +2681,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "orange",
@@ -2653,8 +2704,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "green",
@@ -2677,8 +2727,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "blue",
@@ -2701,8 +2750,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "orange",
@@ -2725,8 +2773,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "purple",
@@ -2749,8 +2796,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "red",
@@ -2773,8 +2819,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     },
                     {
                       "color": "super-light-green",
@@ -2884,8 +2929,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -2985,8 +3029,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3078,8 +3121,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -3166,8 +3208,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -3255,8 +3296,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3396,8 +3436,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3536,8 +3575,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3630,8 +3668,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -3759,8 +3796,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   }
                 ]
               }
@@ -3892,7 +3928,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 40
+            "y": 64
           },
           "id": 90,
           "options": {
@@ -4003,7 +4039,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 40
+            "y": 64
           },
           "id": 91,
           "options": {
@@ -4100,7 +4136,7 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 48
+            "y": 72
           },
           "id": 76,
           "options": {
@@ -4193,7 +4229,7 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 48
+            "y": 72
           },
           "id": 77,
           "options": {
@@ -4286,7 +4322,7 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 48
+            "y": 72
           },
           "id": 79,
           "options": {
@@ -4378,7 +4414,7 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 48
+            "y": 72
           },
           "id": 78,
           "options": {
@@ -4469,7 +4505,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 56
+            "y": 80
           },
           "id": 95,
           "options": {
@@ -4568,7 +4604,7 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 56
+            "y": 80
           },
           "id": 81,
           "options": {
@@ -4661,7 +4697,7 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 56
+            "y": 80
           },
           "id": 80,
           "options": {
@@ -4765,7 +4801,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 64
+            "y": 88
           },
           "id": 61,
           "options": {
@@ -4909,7 +4945,7 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 64
+            "y": 88
           },
           "id": 50,
           "options": {
@@ -5024,7 +5060,7 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 64
+            "y": 88
           },
           "id": 48,
           "options": {
@@ -5173,7 +5209,7 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 72
+            "y": 96
           },
           "id": 62,
           "options": {
@@ -5336,7 +5372,7 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 72
+            "y": 96
           },
           "id": 56,
           "options": {
@@ -5441,7 +5477,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 41
+            "y": 49
           },
           "id": 82,
           "options": {
@@ -5538,7 +5574,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 41
+            "y": 49
           },
           "id": 54,
           "options": {
@@ -5617,6 +5653,6 @@
   "timezone": "",
   "title": "Tacobot",
   "uid": "GnSFRx0Vz",
-  "version": 83,
+  "version": 87,
   "weekStart": ""
 }

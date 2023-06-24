@@ -351,6 +351,13 @@ class TacoBotMetrics:
             documentation="The number of system actions",
             labelnames=["guild_id", "action"])
 
+        self.user_status = Gauge(
+            namespace=self.namespace,
+            name=f"user_status",
+            documentation="The number of users with a status",
+            labelnames=["guild_id", "status"])
+
+
         self.build_info = Gauge(
             namespace=self.namespace,
             name=f"build_info",
@@ -647,6 +654,20 @@ class TacoBotMetrics:
                 total_count = row["total"]
                 if total_count is not None and total_count > 0:
                     self.system_actions.labels(**action_labels).set(row["total"])
+
+            q_user_status = self.db.get_users_by_status()
+            for gid in known_guilds:
+                for status in ["UNKNOWN", "ONLINE", "OFFLINE", "IDLE", "DND"]:
+                    status_labels = { "guild_id": gid, "status": status }
+                    self.user_status.labels(**status_labels).set(0)
+            for row in q_user_status:
+                status_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "status": row['_id']["status"],
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.user_status.labels(**status_labels).set(row["total"])
 
         except Exception as e:
             traceback.print_exc()

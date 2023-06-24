@@ -545,6 +545,44 @@ class MongoDatabase:
             if self.connection:
                 self.close()
 
+    def get_users_by_status(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return self.connection.users.aggregate(
+                [
+                    {
+                        "$group": {
+                            "_id": {
+                                "guild_id": "$guild_id",
+                                # if status is None, then set it to unknown
+                                "status": { "$ifNull": ["$status", "UNKNOWN"] },
+                            },
+                            "total": {"$sum": 1},
+                        },
+                    },
+                    # {
+                    #     "$lookup": {
+                    #         "from": "users",
+                    #         "let": {"user_id": "$_id.user_id", "guild_id": "$_id.guild_id"},
+                    #         "pipeline": [
+                    #             {"$match": {"$expr": {"$eq": ["$user_id", "$$user_id"]}}},
+                    #             {"$match": {"$expr": {"$eq": ["$guild_id", "$$guild_id"]}}},
+                    #         ],
+                    #         "as": "user",
+                    #     }
+                    # },
+                    # {"$match": {"user.bot": {"$ne": True}, "user.system": {"$ne": True}, "user": {"$ne": []}}},
+                    {"$sort": {"total": -1}},
+                ]
+            )
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
+
     def get_known_users(self):
         try:
             if self.connection is None:
