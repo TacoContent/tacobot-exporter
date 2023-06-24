@@ -813,14 +813,19 @@ class MongoDatabase:
         finally:
             if self.connection:
                 self.close()
-
-    def get_food_posts_count(self):
+    def get_photo_posts_count(self):
         try:
             if self.connection is None:
                 self.open()
-            return self.connection.food_posts.aggregate(
+            return self.connection.photo_posts.aggregate(
                 [
-                    {"$group": {"_id": {"user_id": "$user_id", "guild_id": "$guild_id"}, "total": {"$sum": 1}}},
+                    {"$group": {
+                        "_id": {
+                            "user_id": "$user_id",
+                            "guild_id": "$guild_id",
+                            "channel": "$channel_name",
+                        },
+                        "total": {"$sum": 1}}},
                     {
                         "$lookup": {
                             "from": "users",

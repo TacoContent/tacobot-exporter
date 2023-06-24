@@ -65,6 +65,14 @@ class TacoBotMetrics:
             "username",
         ]
 
+        photo_post_labels = [
+            "guild_id",
+            "user_id",
+            "username",
+            "channel",
+        ]
+
+
         live_labels = [
             "guild_id",
             "user_id",
@@ -313,11 +321,11 @@ class TacoBotMetrics:
             documentation="The number of users that have joined or left",
             labelnames=["guild_id", "action"])
 
-        self.food_posts = Gauge(
+        self.photo_posts = Gauge(
             namespace=self.namespace,
-            name=f"food_posts",
-            documentation="The number of food posts",
-            labelnames=user_labels)
+            name=f"photo_posts",
+            documentation="The number of photo posts",
+            labelnames=photo_post_labels)
 
         self.guilds = Gauge(
             namespace=self.namespace,
@@ -589,8 +597,8 @@ class TacoBotMetrics:
                 join_leave_labels = { "guild_id": row['_id']['guild_id'], "action": row['_id']['action'] }
                 self.user_join_leave.labels(**join_leave_labels).set(row["total"])
 
-            q_food = self.db.get_food_posts_count()
-            for u in q_food:
+            q_photo_post = self.db.get_photo_posts_count()
+            for u in q_photo_post:
                 user = {
                     "user_id": u["_id"]['user_id'],
                     "username": u["_id"]['user_id']
@@ -598,8 +606,8 @@ class TacoBotMetrics:
                 if u["user"] is not None and len(u["user"]) > 0:
                     user = u["user"][0]
 
-                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'] }
-                self.food_posts.labels(**user_labels).set(u["total"])
+                user_labels = { "guild_id": u['_id']['guild_id'], "user_id": user['user_id'], "username": user['username'], "channel": u["_id"]['channel'] }
+                self.photo_posts.labels(**user_labels).set(u["total"])
 
             q_taco_logs = self.db.get_taco_logs_counts()
             for t in q_taco_logs:
