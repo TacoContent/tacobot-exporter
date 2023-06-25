@@ -365,6 +365,12 @@ class TacoBotMetrics:
             documentation="The number of users with a status",
             labelnames=["guild_id", "status"])
 
+        self.introductions = Gauge(
+            namespace=self.namespace,
+            name=f"introductions",
+            documentation="The number of introductions",
+            labelnames=["guild_id", "approved"])
+
 
         self.build_info = Gauge(
             namespace=self.namespace,
@@ -676,6 +682,21 @@ class TacoBotMetrics:
                 total_count = row["total"]
                 if total_count is not None and total_count > 0:
                     self.user_status.labels(**status_labels).set(row["total"])
+
+            q_introductions = self.db.get_introductions()
+            for gid in known_guilds:
+                for approved in ["true", "false"]:
+                    intro_labels = { "guild_id": gid, "approved": approved }
+                    self.introductions.labels(**intro_labels).set(0)
+
+            for row in q_introductions:
+                intro_labels = {
+                    "guild_id": row['_id']["guild_id"],
+                    "approved": str(row['_id']["approved"]).lower(),
+                }
+                total_count = row["total"]
+                if total_count is not None and total_count > 0:
+                    self.introductions.labels(**intro_labels).set(row["total"])
 
         except Exception as e:
             traceback.print_exc()

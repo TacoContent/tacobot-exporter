@@ -1110,3 +1110,25 @@ class MongoDatabase:
         finally:
             if self.connection:
                 self.close()
+
+    def get_introductions(self):
+        try:
+            if self.connection is None:
+                self.open()
+            return self.connection.introductions.aggregate([
+                {
+                    "$group": {
+                        "_id": {
+                            "guild_id": "$guild_id",
+                            "approved": "$approved"
+                        },
+                        "total": {"$sum": 1}
+                    }
+                },
+            ])
+        except Exception as ex:
+            print(ex)
+            traceback.print_exc()
+        finally:
+            if self.connection:
+                self.close()
