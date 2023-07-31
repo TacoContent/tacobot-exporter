@@ -27,6 +27,8 @@ class MongoDatabase:
         try:
             if self.client:
                 self.client.close()
+                self.client = None
+                self.connection = None
         except Exception as ex:
             print(ex)
             traceback.print_exc()
@@ -41,7 +43,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_sum_all_gift_tacos(self):
@@ -53,7 +55,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_sum_all_taco_reactions(self):
@@ -65,7 +67,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_sum_all_twitch_tacos(self):
@@ -82,7 +84,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_live_now_count(self):
@@ -94,7 +96,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_twitch_channel_bot_count(self):
@@ -110,7 +112,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_twitch_linked_accounts_count(self):
@@ -122,7 +124,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_tqotd_questions_count(self):
@@ -143,7 +145,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_tqotd_answers_count(self):
@@ -159,7 +161,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_invited_users_count(self):
@@ -175,7 +177,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_sum_live_by_platform(self):
@@ -192,7 +194,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_wdyctw_questions_count(self):
@@ -213,7 +215,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_wdyctw_answers_count(self):
@@ -229,7 +231,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_techthurs_questions_count(self):
@@ -250,7 +252,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_techthurs_answers_count(self):
@@ -266,7 +268,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_mentalmondays_questions_count(self):
@@ -287,7 +289,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_mentalmondays_answers_count(self):
@@ -303,7 +305,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_tacotuesday_questions_count(self):
@@ -324,7 +326,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_tacotuesday_answers_count(self):
@@ -340,7 +342,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     # need to update data here to include guild_id
@@ -355,7 +357,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     # need to update data here to include guild_id
@@ -370,7 +372,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     # need to update data here to include guild_id
@@ -385,7 +387,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_logs(self):
@@ -410,7 +412,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_team_requests_count(self):
@@ -431,7 +433,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_birthdays_count(self):
@@ -453,7 +455,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_first_messages_today_count(self):
@@ -480,7 +482,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_messages_tracked_count(self):
@@ -501,7 +503,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_user_messages_tracked(self):
@@ -542,7 +544,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_users_by_status(self):
@@ -580,7 +582,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_known_users(self):
@@ -613,7 +615,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_top_taco_gifters(self):
@@ -650,7 +652,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_top_taco_reactors(self):
@@ -687,7 +689,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_top_taco_receivers(self):
@@ -724,7 +726,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_live_activity(self):
@@ -763,7 +765,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_suggestions(self):
@@ -787,7 +789,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_user_join_leave(self):
@@ -811,7 +813,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
     def get_photo_posts_count(self):
         try:
@@ -845,7 +847,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_taco_logs_counts(self):
@@ -878,7 +880,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_system_action_counts(self):
@@ -895,7 +897,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_guilds(self):
@@ -907,7 +909,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     # get trivia questions, expand the correct users and incorrect users into separate lists of user objects
@@ -977,7 +979,7 @@ class MongoDatabase:
             traceback.print_exc()
             return []
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     # TODO: this is not working
@@ -1037,7 +1039,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_invites_by_user(self):
@@ -1108,7 +1110,7 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
 
     def get_introductions(self):
@@ -1130,5 +1132,5 @@ class MongoDatabase:
             print(ex)
             traceback.print_exc()
         finally:
-            if self.connection:
+            if self.connection is None:
                 self.close()
